@@ -9,7 +9,7 @@ import {
     FileText, HardDrive, RefreshCw, Info, Eye, EyeOff, Copy,
     Calendar, Type, Gauge, Mail, MessageSquare, Smartphone,
     Volume2, VolumeX, TrendingUp, Cpu, HardDriveIcon, Upload,
-    Wrench
+    Wrench, ExternalLink
 } from 'lucide-react'
 import { useToast } from '@/components/ToastProvider'
 import { useTheme } from '@/components/ThemeProvider'
@@ -1340,85 +1340,22 @@ export default function SettingsPage() {
                             </div>
                         ) : (
                             <>
-                                {/* Veritabanı Bağlantısı */}
+                                {/* Veritabanı Bağlantısı - SQLite */}
                                 <div className="space-y-4">
                                     <h3 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
                                         <Database className="w-5 h-5 text-blue-500" />
-                                        Veritabanı Bağlantısı
+                                        SQLite Veritabanı
                                     </h3>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                Sunucu Adresi
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={envConfig.host}
-                                                onChange={(e) => setEnvConfig(prev => ({ ...prev, host: e.target.value }))}
-                                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                                                placeholder="localhost"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                Port
-                                            </label>
-                                            <input
-                                                type="number"
-                                                value={envConfig.port}
-                                                onChange={(e) => setEnvConfig(prev => ({ ...prev, port: parseInt(e.target.value) || 5432 }))}
-                                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                                                placeholder="5432"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Veritabanı Adı
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={envConfig.database}
-                                            onChange={(e) => setEnvConfig(prev => ({ ...prev, database: e.target.value }))}
-                                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                                            placeholder="medisync"
-                                        />
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                Kullanıcı Adı
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={envConfig.username}
-                                                onChange={(e) => setEnvConfig(prev => ({ ...prev, username: e.target.value }))}
-                                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                                                placeholder="postgres"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                Şifre
-                                            </label>
-                                            <div className="relative">
-                                                <input
-                                                    type={showDbPassword ? 'text' : 'password'}
-                                                    value={envConfig.password}
-                                                    onChange={(e) => setEnvConfig(prev => ({ ...prev, password: e.target.value }))}
-                                                    className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                                                    placeholder="••••••••"
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setShowDbPassword(!showDbPassword)}
-                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                                >
-                                                    {showDbPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                                </button>
+                                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-sm font-medium text-blue-800 dark:text-blue-300">Veritabanı Tipi</p>
+                                                <p className="text-blue-600 dark:text-blue-400 font-mono">SQLite</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-blue-800 dark:text-blue-300">Dosya Konumu</p>
+                                                <p className="text-blue-600 dark:text-blue-400 font-mono text-sm">prisma/dev.db</p>
                                             </div>
                                         </div>
                                     </div>
@@ -1427,16 +1364,16 @@ export default function SettingsPage() {
                                     <div className="flex items-center gap-3">
                                         <button
                                             onClick={testDbConnection}
-                                            disabled={dbTestLoading || !envConfig.password}
+                                            disabled={dbTestLoading}
                                             className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-colors disabled:opacity-50"
                                         >
                                             {dbTestLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                                            Bağlantıyı Test Et
+                                            Veritabanını Test Et
                                         </button>
                                         {dbTestResult && (
                                             <div className={`flex items-center gap-2 text-sm ${dbTestResult.success ? 'text-green-600' : 'text-red-600'}`}>
                                                 {dbTestResult.success ? <CheckCircle2 className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
-                                                {dbTestResult.success ? 'Bağlantı başarılı' : dbTestResult.error}
+                                                {dbTestResult.success ? 'Veritabanı hazır' : dbTestResult.error}
                                             </div>
                                         )}
                                     </div>
@@ -1447,6 +1384,18 @@ export default function SettingsPage() {
                                             <p className="text-green-600 dark:text-green-400">Boyut: {dbTestResult.data.databaseSize}</p>
                                         </div>
                                     )}
+
+                                    <div className="mt-4">
+                                        <a
+                                            href="http://localhost:5555"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400"
+                                        >
+                                            <ExternalLink className="w-4 h-4" />
+                                            Prisma Studio ile veritabanını yönet
+                                        </a>
+                                    </div>
                                 </div>
 
                                 {/* Uygulama Ayarları */}

@@ -35,12 +35,12 @@ echo.
 REM Sunucuyu baslat
 color 0A
 echo  ========================================================
-echo  > Tarayicinizda: http://localhost:3000
+echo  > Tarayicinizda: http://localhost:3005
 echo  > Durdurmak icin: CTRL + C
 echo  ========================================================
 echo.
 
-call npm run dev
+call npm run dev -- -p 3005
 
 echo.
 echo  Sunucu durduruldu.
