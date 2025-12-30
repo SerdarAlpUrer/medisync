@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediSync License Key Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            max-width: 500px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        select:focus,
+        input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f0fdf4;
+            border: 2px solid #10b981;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result-label {
+            font-size: 12px;
+            color: #059669;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .result-key {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            word-break: break-all;
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #d1fae5;
+            color: #047857;
+        }
+
+        .copy-btn {
+            margin-top: 12px;
+            width: 100%;
+            padding: 10px;
+            background: #059669;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .copy-btn:hover {
+            background: #047857;
+        }
+
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #1e40af;
+        }
+
+        .info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .warning {
+            margin-top: 15px;
+            padding: 12px;
+            background: #fef3c7;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #92400e;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔑 MediSync Keygen</h1>
+            <p>Lisans Anahtarı Oluşturucu</p>
+        </div>
+
+        <div class="content">
+            <div class="form-group">
+                <label>Lisans Süresi</label>
+                <select id="duration" onchange="toggleCustomDays()">
+                    <option value="7">7 Gün (Test)</option>
+                    <option value="30">30 Gün (1 Ay)</option>
+                    <option value="90">90 Gün (3 Ay)</option>
+                    <option value="180">180 Gün (6 Ay)</option>
+                    <option value="365" selected>365 Gün (1 Yıl)</option>
+                    <option value="730">730 Gün (2 Yıl)</option>
+                    <option value="9999">Sınırsız</option>
+                    <option value="custom">Özel Süre...</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="customDaysGroup" style="display: none;">
+                <label>Özel Gün Sayısı</label>
+                <input type="number" id="customDays" min="1" max="9999" placeholder="Gün sayısı girin...">
+            </div>
+
+            <button class="btn" onclick="generateKey()">
+                🔐 Anahtar Oluştur
+            </button>
+
+            <div class="result" id="result">
+                <div class="result-label">OLUŞTURULAN LİSANS ANAHTARI:</div>
+                <div class="result-key" id="keyOutput"></div>
+                <button class="copy-btn" onclick="copyKey()">📋 Kopyala</button>
+            </div>
+
+            <div class="info">
+                <strong>Kullanım:</strong>
+                MediSync uygulamasında Ayarlar → Genel → Lisans Anahtarı Gir bölümüne yapıştırın.
+            </div>
+
+            <div class="warning">
+                ⚠️ Bu araç yalnızca yetkili kişiler tarafından kullanılmalıdır.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // GİZLİ ANAHTAR - license-manager.ts ile AYNI olmalı
+        const LICENSE_SECRET = "MEDISYNC_SECURE_V1_2025_KEY";
+
+        function toggleCustomDays() {
+            const select = document.getElementById('duration');
+            const customGroup = document.getElementById('customDaysGroup');
+            customGroup.style.display = select.value === 'custom' ? 'block' : 'none';
+        }
+
+        // HMAC-SHA256 implementation (Web Crypto API kullanarak)
+        async function hmacSha256(key, message) {
+            const encoder = new TextEncoder();
+            const keyData = encoder.encode(key);
+            const messageData = encoder.encode(message);
+
+            const cryptoKey = await crypto.subtle.importKey(
+                'raw',
+                keyData,
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['sign']
+            );
+
+            const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
+            const hashArray = Array.from(new Uint8Array(signature));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+            return hashHex;
+        }
+
+        async function generateKey() {
+            let days = document.getElementById('duration').value;
+
+            // Özel gün seçilmişse input'tan al
+            if (days === 'custom') {
+                const customDays = document.getElementById('customDays').value;
+                if (!customDays || parseInt(customDays) < 1) {
+                    alert('Lütfen geçerli bir gün sayısı girin');
+                    return;
+                }
+                days = customDays;
+            }
+
+            const timestamp = Math.floor(Date.now() / 1000);
+            const type = "FULL";
+
+            // Payload oluştur
+            const payload = `MEDISYNC-${type}-${days}-${timestamp}`;
+
+            // İmzala
+            const hash = await hmacSha256(LICENSE_SECRET, payload);
+            const signature = hash.substring(0, 8).toUpperCase();
+
+            const fullKey = `${payload}-${signature}`;
+
+            // Sonucu göster
+            document.getElementById('keyOutput').textContent = fullKey;
+            document.getElementById('result').classList.add('show');
+        }
+
+        function copyKey() {
+            const key = document.getElementById('keyOutput').textContent;
+            navigator.clipboard.writeText(key).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = '✅ Kopyalandı!';
+                setTimeout(() => {
+                    btn.textContent = '📋 Kopyala';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+
+</html>
