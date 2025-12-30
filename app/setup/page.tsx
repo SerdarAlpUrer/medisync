@@ -535,7 +535,7 @@ export default function SetupPage() {
 
                 {/* Footer */}
                 <p className="text-center text-blue-200 text-sm mt-6">
-                    MediSync Version 1.0 - Profesyonel Tıbbi Cihaz Yönetim Sistemi
+                    MediSync Version 1.5 - Profesyonel Tıbbi Cihaz Yönetim Sistemi
                 </p>
             </div>
         </div>

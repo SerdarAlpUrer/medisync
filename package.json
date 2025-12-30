@@ -1,6 +1,6 @@
 {
   "name": "medisync",
-  "version": "1.0.0",
+  "version": "1.5.0",
   "description": "MediSync - Profesyonel Tıbbi Cihaz Takip ve Biyomedikal Ekipman Yönetim Sistemi",
   "private": true,
   "scripts": {
