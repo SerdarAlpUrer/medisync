@@ -36,3 +36,19 @@ coverage
 
 # Large binary files (installer runtime)
 installer/runtime/
+
+# User uploaded files
+public/uploads/contracts/
+public/uploads/certificates/
+public/uploads/training/
+public/uploads/devices/
+public/uploads/maintenance/
+public/uploads/temp/
+public/uploads/avatars/
+
+# Build artifacts
+tsconfig.tsbuildinfo
+*.xlsx
+
+# Backups (should be external)
+backups/
