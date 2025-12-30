@@ -198,7 +198,7 @@ export default function SetupPage() {
                                 <div className="p-4 bg-gray-50 rounded-xl">
                                     <Database className="w-6 h-6 text-blue-600 mx-auto mb-2" />
                                     <h3 className="font-medium text-gray-900">Veritabanı</h3>
-                                    <p className="text-sm text-gray-500">PostgreSQL bağlantısı</p>
+                                    <p className="text-sm text-gray-500">SQLite dosyası</p>
                                 </div>
                                 <div className="p-4 bg-gray-50 rounded-xl">
                                     <Shield className="w-6 h-6 text-green-600 mx-auto mb-2" />
@@ -231,7 +231,7 @@ export default function SetupPage() {
                                 </div>
                                 <div>
                                     <h2 className="text-xl font-bold text-gray-900">Veritabanı Bağlantısı</h2>
-                                    <p className="text-sm text-gray-500">PostgreSQL sunucu bilgilerini girin</p>
+                                    <p className="text-sm text-gray-500">SQLite veritabanı otomatik oluşturulur</p>
                                 </div>
                             </div>
 

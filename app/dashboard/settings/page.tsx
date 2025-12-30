@@ -951,7 +951,7 @@ export default function SettingsPage() {
                         </div>
 
                         <div className="space-y-4">
-                            <SettingItem label="Veritabanı Tipi" value="PostgreSQL" description="İlişkisel veritabanı sunucusu" />
+                            <SettingItem label="Veritabanı Tipi" value="SQLite" description="Hafif, dosya tabanlı veritabanı" />
 
                             <ToggleSetting
                                 label="Otomatik Yedekleme"
@@ -1443,7 +1443,7 @@ export default function SettingsPage() {
 
                                     {dbTestResult?.success && dbTestResult.data && (
                                         <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-sm">
-                                            <p className="text-green-800 dark:text-green-300">PostgreSQL {dbTestResult.data.version}</p>
+                                            <p className="text-green-800 dark:text-green-300">SQLite {dbTestResult.data.version}</p>
                                             <p className="text-green-600 dark:text-green-400">Boyut: {dbTestResult.data.databaseSize}</p>
                                         </div>
                                     )}
