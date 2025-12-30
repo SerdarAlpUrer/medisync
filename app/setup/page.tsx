@@ -410,7 +410,7 @@ export default function SetupPage() {
 
                 {/* Footer */}
                 <p className="text-center text-blue-200 text-sm mt-6">
-                    MediSync Version 1.0 (SQLite) - Profesyonel Tıbbi Cihaz Yönetim Sistemi
+                    MediSync Version 1.5 (SQLite) - Profesyonel Tıbbi Cihaz Yönetim Sistemi
                 </p>
             </div>
         </div>
