@@ -1,0 +1,12 @@
+MEDISYNC YAZILIM LİSANS SÖZLEŞMESİ
+
+Bu yazılımın tüm hakları saklıdır.
+
+1. KULLANIM HAKLARI
+Bu yazılımı sadece lisans sahibi kullanabilir. Kopyalanması, dağıtılması veya tersine mühendislik işlemine tabi tutulması yasaktır.
+
+2. SORUMLULUK REDDİ
+Yazılım "OLDUĞU GİBİ" sunulmaktadır. Geliştirici, yazılımın kullanımından doğabilecek zararlardan sorumlu tutulamaz.
+
+3. YASAL UYARI
+Bu yazılım T.C. kanunları ve uluslararası telif hakkı yasaları ile korunmaktadır.
