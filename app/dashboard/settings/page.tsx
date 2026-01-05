@@ -1676,6 +1676,7 @@ function LicenseInfoSection({ showSuccess, showError, isAdmin }: { showSuccess: 
         expiryDate: string | null
         isActive: boolean
         licenseKey?: string
+        deviceFingerprint?: string
     } | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [isResetting, setIsResetting] = useState(false)
@@ -1839,6 +1840,29 @@ function LicenseInfoSection({ showSuccess, showError, isAdmin }: { showSuccess: 
                     </div>
                 )}
             </div>
+
+            {/* Donanım Kimliği (HWID) */}
+            {licenseInfo.deviceFingerprint && (
+                <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Donanım Kimliği (HWID)</p>
+                    <div className="flex items-center gap-2">
+                        <code className="text-sm font-mono text-gray-900 dark:text-white break-all flex-1">
+                            {licenseInfo.deviceFingerprint}
+                        </code>
+                        <button
+                            onClick={() => {
+                                navigator.clipboard.writeText(licenseInfo.deviceFingerprint || '')
+                                showSuccess('HWID kopyalandı')
+                            }}
+                            className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors"
+                            title="Kopyala"
+                        >
+                            <Copy className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                        </button>
+                    </div>
+                    <p className="text-[10px] text-gray-400 mt-1">Lisans üretimi için bu kimliği kullanın</p>
+                </div>
+            )}
 
             {/* Lisans Anahtarı */}
             {licenseInfo.licenseKey && (
