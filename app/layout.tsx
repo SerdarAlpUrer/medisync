@@ -40,11 +40,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="tr">
+        <html lang="tr" suppressHydrationWarning>
             <head>
                 <ThemeScript />
             </head>
-            <body className={inter.className}>
+            <body className={inter.className} suppressHydrationWarning>
                 <ErrorBoundary>
                     <ThemeProvider>
                         <AuthProvider>

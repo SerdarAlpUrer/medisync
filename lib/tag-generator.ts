@@ -11,7 +11,8 @@ export async function generateNextTagNumber(prisma: PrismaClient | any) {
     // Fallback: If deviceTagFormat is missing from object (old client), fetch via raw SQL
     if (format === undefined) {
         try {
-            const rawResult: any[] = await prisma.$queryRaw`SELECT "deviceTagFormat" FROM "app_settings" WHERE id = 'default'`
+            // SQLite uyumlu sözdizimi
+            const rawResult: any[] = await prisma.$queryRaw`SELECT deviceTagFormat FROM app_settings WHERE id = 'default'`
             if (rawResult.length > 0 && rawResult[0].deviceTagFormat) {
                 format = rawResult[0].deviceTagFormat
             }

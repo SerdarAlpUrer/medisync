@@ -109,20 +109,32 @@ export default function HospitalsPage() {
     }
 
     const handleDeleteHospital = async (id: string) => {
-        if (!confirm('Bu şubeyi silmek istediğinize emin misiniz?')) return
+        console.log('Delete button clicked for hospital:', id)
+
+        if (!confirm('Bu şubeyi silmek istediğinize emin misiniz?')) {
+            console.log('User cancelled deletion')
+            return
+        }
+
+        console.log('User confirmed deletion, sending request...')
 
         try {
             const res = await fetch(`/api/hospitals/${id}`, {
                 method: 'DELETE'
             })
 
+            console.log('Delete response status:', res.status)
+            const data = await res.json()
+            console.log('Delete response data:', data)
+
             if (res.ok) {
                 showSuccess('Şube silindi')
                 fetchHospitals()
             } else {
-                showError('Silme işlemi başarısız')
+                showError(data.error || 'Silme işlemi başarısız')
             }
         } catch (error) {
+            console.error('Delete error:', error)
             showError('Bir hata oluştu')
         }
     }
@@ -276,6 +288,7 @@ export default function HospitalsPage() {
                                     </div>
                                     <div className="flex items-center space-x-2">
                                         <button
+                                            type="button"
                                             onClick={() => handleEditHospital(hospital)}
                                             className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium text-sm"
                                         >
@@ -283,6 +296,7 @@ export default function HospitalsPage() {
                                         </button>
                                         <span className="text-gray-300 dark:text-gray-600">|</span>
                                         <button
+                                            type="button"
                                             onClick={() => handleDeleteHospital(hospital.id)}
                                             className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-medium text-sm"
                                         >

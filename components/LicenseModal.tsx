@@ -5,7 +5,7 @@ import { useLicense } from "@/contexts/LicenseContext"
 import { Lock, Key, CheckCircle, AlertOctagon } from "lucide-react"
 
 export function LicenseModal() {
-    const { isExpired, checkLicense, isActive } = useLicense()
+    const { isExpired, checkLicense, isActive, deviceFingerprint } = useLicense()
     const [key, setKey] = useState("")
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
@@ -92,7 +92,7 @@ export function LicenseModal() {
 
                             <div className="text-center text-xs text-gray-500 mt-4">
                                 <p>Destek için: destek@medisync.com</p>
-                                <p>Cihaz ID: {Math.random().toString(36).substring(7).toUpperCase()}</p>
+                                <p>Cihaz Kodu: <span className="font-mono font-bold select-all bg-gray-100 px-1 rounded">{deviceFingerprint || 'Yükleniyor...'}</span></p>
                             </div>
                         </form>
                     )}

@@ -23,7 +23,8 @@ export async function GET() {
         // @ts-ignore
         if (settings && settings.deviceTagFormat === undefined) {
             try {
-                const rawResult: any[] = await prisma.$queryRaw`SELECT "deviceTagFormat" FROM "app_settings" WHERE id = 'default'`
+                // SQLite uyumlu sözdizimi
+                const rawResult: any[] = await prisma.$queryRaw`SELECT deviceTagFormat FROM app_settings WHERE id = 'default'`
                 if (rawResult.length > 0 && rawResult[0].deviceTagFormat) {
                     // @ts-ignore
                     settings.deviceTagFormat = rawResult[0].deviceTagFormat
@@ -92,8 +93,8 @@ export async function PUT(request: Request) {
                     }
                 })
 
-                // Update new field via raw SQL
-                await prisma.$executeRawUnsafe('UPDATE "app_settings" SET "deviceTagFormat" = $1 WHERE id = \'default\'', deviceTagFormat)
+                // Update new field via raw SQL (SQLite syntax)
+                await prisma.$executeRawUnsafe('UPDATE app_settings SET deviceTagFormat = ? WHERE id = ?', deviceTagFormat, 'default')
 
                 // Manually add to result
                 // @ts-ignore

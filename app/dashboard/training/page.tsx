@@ -149,12 +149,13 @@ export default function TrainingPage() {
     try {
       let uploadedDocs = []
       if (uploadFile) {
-        const formData = new FormData()
-        formData.append('file', uploadFile)
+        const requestData = new FormData()
+        requestData.append('file', uploadFile)
+        requestData.append('trainingTitle', formData.title || 'Genel')
 
         const uploadRes = await fetch('/api/training-sessions/upload', {
           method: 'POST',
-          body: formData
+          body: requestData
         })
 
         if (!uploadRes.ok) throw new Error('Dosya yüklenemedi')
@@ -388,6 +389,7 @@ export default function TrainingPage() {
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Konu</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Eğitmen</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Tarih</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Belge</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Katılımcı</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">İşlem</th>
                   </tr>
@@ -416,6 +418,33 @@ export default function TrainingPage() {
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                         {new Date(session.trainingDate).toLocaleDateString('tr-TR')}
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        {session.documents && session.documents.length > 0 ? (
+                          <div className="flex items-center gap-2">
+                            <a
+                              href={`/api/training-sessions/documents/${session.documents[0].filepath}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 hover:underline"
+                              title={session.documents[0].filename}
+                            >
+                              <Download className="h-4 w-4" />
+                              <span className="truncate max-w-[100px]">{session.documents[0].filename}</span>
+                            </a>
+                            {session.documents.length > 1 && (
+                              <button
+                                onClick={() => { setSelectedSession(session); setShowDetailModal(true); }}
+                                className="text-xs bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                                title="Tüm dosyaları görmek için detaylara bakın"
+                              >
+                                +{session.documents.length - 1}
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded-full text-xs font-medium">
@@ -634,6 +663,25 @@ export default function TrainingPage() {
                             Seçilen: {uploadFile.name}
                           </p>
                         )}
+                        {!uploadFile && editingSession && editingSession.documents && editingSession.documents.length > 0 && (
+                          <div className="mt-2 text-left bg-gray-50 dark:bg-gray-700/50 p-2 rounded-lg border border-gray-100 dark:border-gray-600">
+                            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Mevcut Dosyalar:</p>
+                            {editingSession.documents.map((doc, idx) => (
+                              <div key={idx} className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 py-0.5">
+                                <FileText className="h-3 w-3" />
+                                <a
+                                  href={`/api/training-sessions/documents/${doc.filepath}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="hover:underline truncate max-w-[200px]"
+                                  title={doc.filename}
+                                >
+                                  {doc.filename}
+                                </a>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -814,7 +862,7 @@ export default function TrainingPage() {
                     {selectedSession.documents.map((doc, idx) => (
                       <a
                         key={idx}
-                        href={`/api/training-sessions/documents/${doc.filename}`}
+                        href={`/api/training-sessions/documents/${doc.filepath}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"

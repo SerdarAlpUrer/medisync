@@ -1231,11 +1231,19 @@ export default function DevicesPage() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cihaz Türü *</label>
                   <select
                     value={newDevice.name}
-                    onChange={(e) => setNewDevice({ ...newDevice, name: e.target.value })}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === 'NEW') {
+                        setNewDevice({ ...newDevice, name: '' });
+                      } else {
+                        setNewDevice({ ...newDevice, name: val });
+                      }
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
                     required
                   >
                     <option value="">Seçiniz...</option>
+                    <option value="NEW" className="font-semibold text-blue-600">+ Yeni Cihaz Türü Ekle</option>
                     {Object.entries(groupedCategories).map(([group, catList]: any) => (
                       <optgroup key={group} label={group}>
                         {catList.map((cat: any) => (
@@ -1244,6 +1252,17 @@ export default function DevicesPage() {
                       </optgroup>
                     ))}
                   </select>
+                  {/* Custom Device Type Input */}
+                  {(!newDevice.name || !categories.find(c => c.name === newDevice.name)) && (
+                    <input
+                      type="text"
+                      value={newDevice.name}
+                      onChange={(e) => setNewDevice({ ...newDevice, name: e.target.value })}
+                      className="mt-2 w-full px-3 py-2 border border-blue-300 dark:border-blue-500 rounded-lg focus:ring-2 focus:ring-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:text-white"
+                      placeholder="Yeni cihaz türünü yazınız..."
+                      autoFocus
+                    />
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Marka</label>
@@ -1277,56 +1296,66 @@ export default function DevicesPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lokasyon</label>
-                  <div className="space-y-2">
-                    <select
-                      value={newDevice.locationId}
-                      onChange={(e) => setNewDevice({ ...newDevice, locationId: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Seçiniz</option>
-                      {locations.map((loc) => (
-                        <option key={loc.id} value={loc.id}>{loc.name}</option>
-                      ))}
-                      <option value="NEW" className="font-semibold text-blue-600">+ Yeni Lokasyon Ekle</option>
-                    </select>
-                    {newDevice.locationId === 'NEW' && (
-                      <input
-                        type="text"
-                        value={newDevice.newLocationName}
-                        onChange={(e) => setNewDevice({ ...newDevice, newLocationName: e.target.value })}
-                        className="w-full px-3 py-2 border border-blue-300 dark:border-blue-500 rounded-lg focus:ring-2 focus:ring-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:text-white"
-                        placeholder="Yeni Lokasyon Adı"
-                        autoFocus
-                      />
-                    )}
-                  </div>
+                  <select
+                    value={newDevice.locationId}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === 'NEW') {
+                        setNewDevice({ ...newDevice, locationId: 'NEW', newLocationName: '' });
+                      } else {
+                        setNewDevice({ ...newDevice, locationId: val });
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Seçiniz...</option>
+                    <option value="NEW" className="font-semibold text-blue-600">+ Yeni Lokasyon Ekle</option>
+                    {locations.map(l => (
+                      <option key={l.id} value={l.id}>{l.name}</option>
+                    ))}
+                  </select>
+                  {newDevice.locationId === 'NEW' && (
+                    <input
+                      type="text"
+                      value={newDevice.newLocationName}
+                      onChange={(e) => setNewDevice({ ...newDevice, newLocationName: e.target.value })}
+                      className="mt-2 w-full px-3 py-2 border border-blue-300 dark:border-blue-500 rounded-lg focus:ring-2 focus:ring-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:text-white"
+                      placeholder="Yeni lokasyon adını yazınız..."
+                      autoFocus
+                    />
+                  )}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tedarikçi</label>
-                  <div className="space-y-2">
-                    <select
-                      value={newDevice.supplierId}
-                      onChange={(e) => setNewDevice({ ...newDevice, supplierId: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Seçiniz</option>
-                      {suppliers.map((sup) => (
-                        <option key={sup.id} value={sup.id}>{sup.name}</option>
-                      ))}
-                      <option value="NEW" className="font-semibold text-blue-600">+ Yeni Tedarikçi Ekle</option>
-                    </select>
-                    {newDevice.supplierId === 'NEW' && (
-                      <input
-                        type="text"
-                        value={newDevice.newSupplierName}
-                        onChange={(e) => setNewDevice({ ...newDevice, newSupplierName: e.target.value })}
-                        className="w-full px-3 py-2 border border-blue-300 dark:border-blue-500 rounded-lg focus:ring-2 focus:ring-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:text-white"
-                        placeholder="Yeni Tedarikçi Adı"
-                        autoFocus
-                      />
-                    )}
-                  </div>
+                  <select
+                    value={newDevice.supplierId}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === 'NEW') {
+                        setNewDevice({ ...newDevice, supplierId: 'NEW', newSupplierName: '' });
+                      } else {
+                        setNewDevice({ ...newDevice, supplierId: val });
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Seçiniz...</option>
+                    <option value="NEW" className="font-semibold text-blue-600">+ Yeni Tedarikçi Ekle</option>
+                    {suppliers.map(s => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+                  {newDevice.supplierId === 'NEW' && (
+                    <input
+                      type="text"
+                      value={newDevice.newSupplierName}
+                      onChange={(e) => setNewDevice({ ...newDevice, newSupplierName: e.target.value })}
+                      className="mt-2 w-full px-3 py-2 border border-blue-300 dark:border-blue-500 rounded-lg focus:ring-2 focus:ring-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:text-white"
+                      placeholder="Yeni tedarikçi adını yazınız..."
+                      autoFocus
+                    />
+                  )}
                 </div>
 
                 <div>
@@ -1439,8 +1468,8 @@ export default function DevicesPage() {
                 Kaydet
               </button>
             </div>
-          </div>
-        </div>
+          </div >
+        </div >
       )
       }
 

@@ -105,8 +105,8 @@ export async function restoreDatabaseFromJson(json: any) {
     ]
 
     return await prisma.$transaction(async (tx) => {
-        // Disable foreign key checks for PostgreSQL
-        await tx.$executeRawUnsafe('SET session_replication_role = \'replica\';')
+        // SQLite: Foreign key constraint'leri geçici olarak devre dışı bırak
+        await tx.$executeRawUnsafe('PRAGMA foreign_keys = OFF;')
 
         try {
             // Clear existing data
@@ -144,8 +144,8 @@ export async function restoreDatabaseFromJson(json: any) {
                 }
             }
         } finally {
-            // Re-enable foreign key checks
-            await tx.$executeRawUnsafe('SET session_replication_role = \'origin\';')
+            // SQLite: Foreign key constraint'leri tekrar aktif et
+            await tx.$executeRawUnsafe('PRAGMA foreign_keys = ON;')
         }
 
         return true

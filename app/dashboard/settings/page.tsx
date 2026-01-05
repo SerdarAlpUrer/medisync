@@ -1832,6 +1832,7 @@ function LicenseInfoSection({ showSuccess, showError, isAdmin }: { showSuccess: 
             {isAdmin && (
                 <div className="flex items-center justify-between p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
                     <div>
+                        <p className="font-medium">Version 1.5.0</p>
                         <p className="font-medium text-red-800 dark:text-red-300">Lisansı Sıfırla</p>
                         <p className="text-xs text-red-600 dark:text-red-400">Demo süresini yeniden başlatır. Sadece test amaçlıdır.</p>
                     </div>

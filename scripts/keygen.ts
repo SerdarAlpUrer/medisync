@@ -5,18 +5,23 @@ const LICENSE_SECRET = "MEDISYNC_SECURE_V1_2025_KEY"
 
 async function generateKey() {
     // Argümanları al
-    // Örn: npx tsx scripts/keygen.ts --days=365
+    // Örn: npx tsx scripts/keygen.ts --days=365 --machine-id=A1B2C3D4
 
     const args = process.argv.slice(2)
     const daysArg = args.find(a => a.startsWith('--days='))?.split('=')[1] || "365"
-    const typeArg = "FULL" // Şimdilik sadece FULL destekliyoruz
+    let machineIdArg = args.find(a => a.startsWith('--machine-id='))?.split('=')[1] || "ANY"
+    let typeArg = args.find(a => a.startsWith('--type='))?.split('=')[1] || "FULL" // FULL veya RESET
+
+    // Normalize
+    machineIdArg = machineIdArg.trim().toUpperCase()
+    typeArg = typeArg.trim().toUpperCase()
 
     const days = parseInt(daysArg)
     const timestamp = Math.floor(Date.now() / 1000)
 
     // Payload oluştur
-    // Format: MEDISYNC-TYPE-DAYS-TIMESTAMP
-    const payload = `MEDISYNC-${typeArg}-${days}-${timestamp}`
+    // YENİ Format: MEDISYNC-TYPE-DAYS-TIMESTAMP-HWID
+    const payload = `MEDISYNC-${typeArg}-${days}-${timestamp}-${machineIdArg}`
 
     // İmzala
     const signature = crypto
@@ -30,11 +35,12 @@ async function generateKey() {
 
     console.log(`
 =============================================
-MEDISYNC KEY GENERATOR
+MEDISYNC KEY GENERATOR (SECURE)
 =============================================
 Type: ${typeArg}
 Days: ${days}
 Timestamp: ${timestamp}
+Machine ID: ${machineIdArg}
 ---------------------------------------------
 GENERATED KEY:
 ${fullKey}

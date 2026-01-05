@@ -31,7 +31,9 @@ export async function POST(request: Request) {
         ]
 
         await prisma.$transaction(async (tx) => {
-            await tx.$executeRawUnsafe('SET session_replication_role = \'replica\';')
+            // SQLite: Foreign key constraint'leri geçici olarak devre dışı bırak
+            await tx.$executeRawUnsafe('PRAGMA foreign_keys = OFF;')
+
             for (const model of models) {
                 try {
                     // @ts-ignore
@@ -40,7 +42,9 @@ export async function POST(request: Request) {
                     console.log(`Failed to clear ${model}, skipping.`)
                 }
             }
-            await tx.$executeRawUnsafe('SET session_replication_role = \'origin\';')
+
+            // SQLite: Foreign key constraint'leri tekrar aktif et
+            await tx.$executeRawUnsafe('PRAGMA foreign_keys = ON;')
         })
 
         return NextResponse.json({ message: 'Sistem başarıyla sıfırlandı' })
@@ -52,4 +56,3 @@ export async function POST(request: Request) {
         )
     }
 }
-

@@ -10,6 +10,7 @@ interface LicenseState {
     remainingMinutes: number
     totalHours: number
     isLoading: boolean
+    deviceFingerprint?: string
     checkLicense: () => Promise<void>
 }
 
@@ -23,7 +24,8 @@ export function LicenseProvider({ children }: { children: React.ReactNode }) {
         remainingHours: 240,
         remainingMinutes: 0,
         totalHours: 240,
-        isLoading: true
+        isLoading: true,
+        deviceFingerprint: ''
     })
 
     const checkLicense = async () => {
@@ -38,7 +40,8 @@ export function LicenseProvider({ children }: { children: React.ReactNode }) {
                 remainingHours: data.remainingHours || 0,
                 remainingMinutes: data.remainingMinutes || 0,
                 totalHours: data.totalHours || 240,
-                isLoading: false
+                isLoading: false,
+                deviceFingerprint: data.deviceFingerprint
             })
         } catch (error) {
             console.error("Lisans kontrol hatası:", error)

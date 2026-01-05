@@ -66,6 +66,7 @@ function LoginContent() {
                         <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-cyan-200">
                             MediSync
                         </h1>
+                        <p className="mt-2 text-xs text-gray-400">Version 1.5.0</p>
                         <p className="text-gray-400 text-sm mt-2">
                             Profesyonel Cihaz Yönetim Sistemi
                         </p>

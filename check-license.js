@@ -1,11 +1,28 @@
 const { PrismaClient } = require('@prisma/client');
+const { machineId } = require('node-machine-id');
+const crypto = require('crypto');
+
 const prisma = new PrismaClient();
 
+async function getDeviceFingerprint() {
+    try {
+        const id = await machineId()
+        return crypto.createHash('md5').update(id).digest('hex').substring(0, 8).toUpperCase()
+    } catch (error) {
+        return 'UNKNOWN'
+    }
+}
+
 async function checkLicense() {
+    const fingerprint = await getDeviceFingerprint();
     const license = await prisma.systemLicense.findFirst();
 
+    console.log('=== SİSTEM BİLGİSİ ===');
+    console.log('Cihaz Kodu (Fingerprint):', fingerprint);
+    console.log('----------------------');
+
     if (license) {
-        console.log('=== TAM LİSANS BİLGİSİ ===');
+        console.log('=== MEVCUT LİSANS BİLGİSİ ===');
         console.log(JSON.stringify(license, null, 2));
 
         const now = new Date();
@@ -29,7 +46,7 @@ async function checkLicense() {
             console.log('Lisans aktif ve süresiz (expiryDate boş)');
         }
     } else {
-        console.log('Lisans kaydı bulunamadı');
+        console.log('Lisans kaydı bulunamadı (Demo modunda başlayacak)');
     }
 
     await prisma.$disconnect();
