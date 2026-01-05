@@ -84,6 +84,7 @@ export default function TrainingPage() {
   const [staffSearchTerm, setStaffSearchTerm] = useState('')
   const [filterDepartment, setFilterDepartment] = useState('ALL')
   const [uploadFile, setUploadFile] = useState<File | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     fetchSessions()
@@ -147,14 +148,16 @@ export default function TrainingPage() {
     }
 
     try {
+      setIsSubmitting(true)
       let uploadedDocs = []
       if (uploadFile) {
-        const formData = new FormData()
-        formData.append('file', uploadFile)
+        const requestData = new FormData()
+        requestData.append('file', uploadFile)
+        requestData.append('trainingTitle', formData.title || 'Genel')
 
         const uploadRes = await fetch('/api/training-sessions/upload', {
           method: 'POST',
-          body: formData
+          body: requestData
         })
 
         if (!uploadRes.ok) throw new Error('Dosya yüklenemedi')
@@ -190,6 +193,8 @@ export default function TrainingPage() {
       }
     } catch (error) {
       showError('Bir hata oluştu')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -388,6 +393,7 @@ export default function TrainingPage() {
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Konu</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Eğitmen</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Tarih</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Belge</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Katılımcı</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">İşlem</th>
                   </tr>
@@ -416,6 +422,33 @@ export default function TrainingPage() {
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                         {new Date(session.trainingDate).toLocaleDateString('tr-TR')}
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        {session.documents && session.documents.length > 0 ? (
+                          <div className="flex items-center gap-2">
+                            <a
+                              href={`/api/training-sessions/documents/${session.documents[0].filepath}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 hover:underline"
+                              title={session.documents[0].filename}
+                            >
+                              <Download className="h-4 w-4" />
+                              <span className="truncate max-w-[100px]">{session.documents[0].filename}</span>
+                            </a>
+                            {session.documents.length > 1 && (
+                              <button
+                                onClick={() => { setSelectedSession(session); setShowDetailModal(true); }}
+                                className="text-xs bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                                title="Tüm dosyaları görmek için detaylara bakın"
+                              >
+                                +{session.documents.length - 1}
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded-full text-xs font-medium">
@@ -467,7 +500,7 @@ export default function TrainingPage() {
                   <button
                     onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}
-                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
                   >
                     Sonraki
                   </button>
@@ -634,6 +667,25 @@ export default function TrainingPage() {
                             Seçilen: {uploadFile.name}
                           </p>
                         )}
+                        {!uploadFile && editingSession && editingSession.documents && editingSession.documents.length > 0 && (
+                          <div className="mt-2 text-left bg-gray-50 dark:bg-gray-700/50 p-2 rounded-lg border border-gray-100 dark:border-gray-600">
+                            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Mevcut Dosyalar:</p>
+                            {editingSession.documents.map((doc, idx) => (
+                              <div key={idx} className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 py-0.5">
+                                <FileText className="h-3 w-3" />
+                                <a
+                                  href={`/api/training-sessions/documents/${doc.filepath}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="hover:underline truncate max-w-[200px]"
+                                  title={doc.filename}
+                                >
+                                  {doc.filename}
+                                </a>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -751,8 +803,14 @@ export default function TrainingPage() {
                   disabled={selectedStaffIds.length === 0}
                   className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  <GraduationCap className="h-4 w-4" />
-                  Eğitim Kaydet ({selectedStaffIds.length} kişi)
+                  {isSubmitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Kaydediliyor...</span>
+                    </>
+                  ) : (
+                    <span>Kaydet</span>
+                  )}
                 </button>
               </div>
             </form>
@@ -763,90 +821,95 @@ export default function TrainingPage() {
       {/* Detail Modal */}
       {showDetailModal && selectedSession && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
             <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Eğitim Detayı</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Eğitim Detayı
+              </h2>
               <button onClick={() => setShowDetailModal(false)} className="text-gray-500 hover:text-gray-700">
                 <X className="h-6 w-6" />
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{selectedSession.title}</h3>
-                <p className="text-sm text-gray-500">{selectedSession.sessionNumber}</p>
-              </div>
+            <div className="p-6 overflow-y-auto">
+              {/* Info Logic... I'll assume the rest of the modal is standard viewing logic */}
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-bold text-lg">{selectedSession.title}</h3>
+                  <p className="text-gray-500 text-sm">
+                    {selectedSession.sessionNumber} • {new Date(selectedSession.trainingDate).toLocaleDateString('tr-TR')}
+                  </p>
+                </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                  <Calendar className="h-4 w-4" />
-                  <span>{new Date(selectedSession.trainingDate).toLocaleDateString('tr-TR')}</span>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="font-semibold block">Eğitmen</span>
+                    {selectedSession.trainer || '-'}
+                  </div>
+                  <div>
+                    <span className="font-semibold block">Firma</span>
+                    {selectedSession.trainerOrg || '-'}
+                  </div>
+                  <div>
+                    <span className="font-semibold block">Süre</span>
+                    {selectedSession.durationMinutes} dakika
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                  <Clock className="h-4 w-4" />
-                  <span>{selectedSession.durationMinutes} dakika</span>
-                </div>
-                {selectedSession.trainer && (
-                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                    <Users className="h-4 w-4" />
-                    <span>{selectedSession.trainer}</span>
+
+                {selectedSession.content && (
+                  <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg text-sm markdown">
+                    {selectedSession.content}
                   </div>
                 )}
-                {selectedSession.trainerOrg && (
-                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                    <Building2 className="h-4 w-4" />
-                    <span>{selectedSession.trainerOrg}</span>
+
+                {selectedSession.documents && selectedSession.documents.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold mb-2">Eğitim Dokümanları</h4>
+                    <div className="space-y-2">
+                      {selectedSession.documents.map(doc => (
+                        <a
+                          key={doc.id}
+                          href={`/api/training-sessions/documents/${doc.filepath}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                        >
+                          <Download className="h-5 w-5 text-blue-500" />
+                          <div className="flex-1 overflow-hidden">
+                            <p className="text-sm font-medium truncate">{doc.filename}</p>
+                            <p className="text-xs text-gray-500">{(doc.filesize / 1024).toFixed(1)} KB • {doc.mimetype}</p>
+                          </div>
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 )}
-              </div>
 
-              {selectedSession.content && (
                 <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white mb-1">Eğitim İçeriği</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-line">{selectedSession.content}</p>
-                </div>
-              )}
-
-              {selectedSession.documents && selectedSession.documents.length > 0 && (
-                <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white mb-2">Eğitim Dokümanları</h4>
-                  <div className="flex flex-col gap-2">
-                    {selectedSession.documents.map((doc, idx) => (
-                      <a
-                        key={idx}
-                        href={`/api/training-sessions/documents/${doc.filename}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
-                      >
-                        <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                            {doc.filename}
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {(doc.filesize / 1024).toFixed(1)} KB
-                          </p>
-                        </div>
-                        <Download className="h-4 w-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
-                      </a>
-                    ))}
+                  <h4 className="font-semibold mb-2">Katılımcılar ({selectedSession.attendees.length})</h4>
+                  <div className="max-h-40 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <table className="w-full text-sm">
+                      <tbody>
+                        {selectedSession.attendees.map(a => (
+                          <tr key={a.id} className="border-b dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <td className="px-3 py-2">{a.staff.name}</td>
+                            <td className="px-3 py-2 text-gray-500 text-right">{a.staff.department}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
-              )}
-
-              <div>
-                <h4 className="font-medium text-gray-900 dark:text-white mb-2">
-                  Katılımcılar ({selectedSession.attendees.length})
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {selectedSession.attendees.map(a => (
-                    <span key={a.id} className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm">
-                      {a.staff.name}
-                    </span>
-                  ))}
-                </div>
               </div>
+            </div>
+
+            <div className="border-t border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-end">
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 rounded-lg"
+              >
+                Kapat
+              </button>
             </div>
           </div>
         </div>

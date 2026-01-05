@@ -1231,11 +1231,19 @@ export default function DevicesPage() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cihaz Türü *</label>
                   <select
                     value={newDevice.name}
-                    onChange={(e) => setNewDevice({ ...newDevice, name: e.target.value })}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === 'NEW') {
+                        setNewDevice({ ...newDevice, name: '' });
+                      } else {
+                        setNewDevice({ ...newDevice, name: val });
+                      }
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
                     required
                   >
                     <option value="">Seçiniz...</option>
+                    <option value="NEW" className="font-semibold text-blue-600">+ Yeni Cihaz Türü Ekle</option>
                     {Object.entries(groupedCategories).map(([group, catList]: any) => (
                       <optgroup key={group} label={group}>
                         {catList.map((cat: any) => (
@@ -1244,6 +1252,17 @@ export default function DevicesPage() {
                       </optgroup>
                     ))}
                   </select>
+                  {/* Custom Device Type Input */}
+                  {(!newDevice.name || !categories.find(c => c.name === newDevice.name)) && (
+                    <input
+                      type="text"
+                      value={newDevice.name}
+                      onChange={(e) => setNewDevice({ ...newDevice, name: e.target.value })}
+                      className="mt-2 w-full px-3 py-2 border border-blue-300 dark:border-blue-500 rounded-lg focus:ring-2 focus:ring-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:text-white"
+                      placeholder="Yeni cihaz türünü yazınız..."
+                      autoFocus
+                    />
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Marka</label>

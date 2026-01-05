@@ -269,7 +269,7 @@ function Sidebar({ isOpen, onClose, collapsed, onToggleCollapse, userProfile }: 
                             </div>
                             <div>
                                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">MediSync</h1>
-                                <p className="text-xs text-gray-600 dark:text-gray-400">v1.5</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">v1.5.0</p>
                             </div>
                         </div>
                     )}

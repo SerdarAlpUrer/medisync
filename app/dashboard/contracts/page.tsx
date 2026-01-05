@@ -87,9 +87,10 @@ export default function ContractsPage() {
         }
     }
 
-    const handleFileUpload = async (file: File) => {
+    const handleFileUpload = async (file: File, contractName: string) => {
         const formData = new FormData()
         formData.append('file', file)
+        formData.append('contractName', contractName)
 
         const res = await fetch('/api/contracts/upload', {
             method: 'POST',
@@ -114,7 +115,9 @@ export default function ContractsPage() {
 
             let documentPath = null
             if (uploadFile) {
-                documentPath = await handleFileUpload(uploadFile)
+                if (uploadFile) {
+                    documentPath = await handleFileUpload(uploadFile, newContract.name || 'Genel')
+                }
             }
 
             const payload = {
@@ -168,7 +171,9 @@ export default function ContractsPage() {
 
             let documentPath = selectedContract.documentPath
             if (uploadFile) {
-                documentPath = await handleFileUpload(uploadFile)
+                if (uploadFile) {
+                    documentPath = await handleFileUpload(uploadFile, selectedContract.name || 'Genel')
+                }
             }
 
             const payload = {
@@ -414,7 +419,7 @@ export default function ContractsPage() {
                                 <button
                                     onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                                     disabled={currentPage === totalPages}
-                                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
                                 >
                                     Sonraki
                                 </button>

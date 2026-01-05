@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import path from 'path'
-import { v4 as uuidv4 } from 'uuid'
+import { saveFile } from '@/lib/storage'
 
 // POST /api/training-sessions/upload - Upload Training Document
 export async function POST(request: Request) {
     try {
         const formData = await request.formData()
         const file = formData.get('file') as File
+        const trainingTitle = formData.get('trainingTitle') as string || 'Genel'
 
         if (!file) {
             return NextResponse.json(
@@ -16,31 +15,15 @@ export async function POST(request: Request) {
             )
         }
 
-        const buffer = Buffer.from(await file.arrayBuffer())
-        const originalName = file.name
-        const sanitizedFilename = originalName.replace(/[^a-zA-Z0-9.-]/g, '_')
-        const uniqueFilename = `${uuidv4()}-${sanitizedFilename}`
-        const filesize = file.size
-        const mimetype = file.type
-
-        // Check/Create directory
-        const uploadDir = path.join(process.cwd(), 'egitim-dokumanlari')
-        try {
-            await mkdir(uploadDir, { recursive: true })
-        } catch (error) {
-            // Ignore if exists
-        }
-
-        const filePath = path.join(uploadDir, uniqueFilename)
-        await writeFile(filePath, buffer)
+        const savedFile = await saveFile(file, 'egitim-dokumanlari', trainingTitle)
 
         return NextResponse.json({
             message: 'Dosya başarıyla yüklendi',
-            filename: uniqueFilename,
-            originalName: originalName,
-            filesize: filesize,
-            mimetype: mimetype,
-            path: uniqueFilename // Using path as filename for consistency with other parts if needed
+            filename: savedFile.filename,
+            originalName: file.name,
+            filesize: savedFile.size,
+            mimetype: savedFile.mimetype,
+            path: savedFile.filepath // Stores relative path: egitim-dokumanlari/Title/uuid-filename
         })
     } catch (error) {
         console.error('Error uploading file:', error)

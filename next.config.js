@@ -9,11 +9,6 @@ const withPWA = require('next-pwa')({
 const nextConfig = {
     reactStrictMode: true,
 
-    // Enable instrumentation for backup scheduler
-    experimental: {
-        instrumentationHook: true,
-    },
-
     // ==========================================
     // PERFORMANCE OPTIMIZATIONS
     // ==========================================
@@ -29,9 +24,6 @@ const nextConfig = {
         imageSizes: [16, 32, 48, 64, 96, 128, 256],
     },
 
-    // Reduce bundle size
-    swcMinify: true,
-
     // Optimize production builds
     productionBrowserSourceMaps: false,
 
@@ -45,6 +37,45 @@ const nextConfig = {
     // Security Headers
     async headers() {
         return [
+            // API routes - no caching
+            {
+                source: '/api/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'no-store, no-cache, must-revalidate, proxy-revalidate'
+                    },
+                    {
+                        key: 'Pragma',
+                        value: 'no-cache'
+                    },
+                    {
+                        key: 'Expires',
+                        value: '0'
+                    }
+                ],
+            },
+            // Dashboard pages - no caching for dynamic content
+            {
+                source: '/dashboard/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'no-store, no-cache, must-revalidate'
+                    }
+                ],
+            },
+            // Static assets - long cache (images, fonts, etc.)
+            {
+                source: '/_next/static/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=31536000, immutable'
+                    }
+                ],
+            },
+            // All other routes - security headers only
             {
                 source: '/:path*',
                 headers: [
@@ -79,11 +110,6 @@ const nextConfig = {
                     {
                         key: 'Content-Security-Policy',
                         value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'self';"
-                    },
-                    // Cache static assets
-                    {
-                        key: 'Cache-Control',
-                        value: 'public, max-age=31536000, immutable'
                     }
                 ],
             },

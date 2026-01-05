@@ -1,130 +1,69 @@
 @echo off
-setlocal enabledelayedexpansion
 color 0A
 chcp 65001 >nul
 cls
+
 echo.
 echo  ========================================================
-echo         MediSync Version 1 - Baslatma
+echo         MediSync PostgreSQL - Baslat
 echo  ========================================================
 echo.
+
+REM Scriptin calistigi dizine gec
+cd /d "%~dp0"
 
 REM Node.js kontrolu
 where node >nul 2>&1
-if !errorlevel! neq 0 (
-    color 0C
-    echo  [X] HATA: Node.js kurulu degil!
-    echo.
-    echo  Lutfen once KURULUM.bat dosyasini calistirin.
-    echo.
-    pause
-    exit /b 1
-)
-echo  [OK] Node.js bulundu
+if %errorlevel% neq 0 goto NODE_MISSING
+
+echo  [OK] Calisma dizini ayarlandi.
 echo.
 
-REM node_modules kontrolu - daha detayli
-if not exist "node_modules" (
-    color 0C
-    echo  [X] HATA: node_modules klasoru bulunamadi!
-    echo.
-    echo  Bu, bagimliliklarin yuklenmedigi anlamina gelir.
-    echo  Lutfen once KURULUM.bat dosyasini calistirin.
-    echo.
-    pause
-    exit /b 1
-)
+REM node_modules kontrolu
+if not exist "node_modules" goto INSTALL
 
-REM node_modules icinde en az bir paket var mi kontrol et
-dir "node_modules" /b >nul 2>&1
-if !errorlevel! neq 0 (
-    color 0C
-    echo  [X] HATA: node_modules klasoru bos!
-    echo.
-    echo  Lutfen once KURULUM.bat dosyasini calistirin.
-    echo.
-    pause
-    exit /b 1
-)
+goto START_SERVER
 
-echo  [OK] Bagimliliklar yuklu
+:INSTALL
+color 0E
+echo  [!] Kurulum yapilmamis, KURULUM.bat calistiriliyor...
+call KURULUM.bat
+if %errorlevel% neq 0 goto ERROR_EXIT
+goto START_SERVER
+
+:NODE_MISSING
+color 0C
+echo  [X] HATA: Node.js kurulu degil!
+echo.
+echo  Lutfen https://nodejs.org adresinden Node.js yukleyin.
+pause
+exit /b 1
+
+:START_SERVER
+echo  [OK] Bagimliliklar hazir.
 echo.
 
-REM package.json kontrolu
-if not exist "package.json" (
-    color 0C
-    echo  [X] HATA: package.json dosyasi bulunamadi!
-    echo.
-    echo  Yanlis klasorde olabilirsiniz.
-    echo  Lutfen proje klasorunde oldugunuzdan emin olun.
-    echo.
-    pause
-    exit /b 1
-)
+REM Port 3000 temizle
+echo  [*] Port 3000 kontrol ediliyor...
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3000 ^| findstr LISTENING 2^>nul') do taskkill /F /PID %%a >nul 2>&1
 
-REM Prisma kontrolu - yoksa olustur
-if not exist "node_modules\.prisma" (
-    color 0E
-    echo  [!] UYARI: Prisma Client bulunamadi, olusturuluyor...
-    call npm run db:generate
-    if !errorlevel! neq 0 (
-        color 0C
-        echo  [X] HATA: Prisma Client olusturulamadi!
-        echo.
-        echo  Lutfen once KURULUM.bat dosyasini calistirin.
-        echo.
-        pause
-        exit /b 1
-    )
-    echo  [OK] Prisma Client olusturuldu
-    echo.
-) else (
-    echo  [OK] Prisma Client hazir
-    echo.
-)
-
-REM Veritabani kontrolu
-REM PostgreSQL kullanildigi icin dosya kontrolu yapilmiyor.
-REM Veritabaninin hazir oldugu varsayiliyor.
-
-color 0A
-echo             SUNUCU BASLATILIYOR...
-echo.
-echo  Yeni Ozellikler:
-echo  - Şube / Hastane Seçici (Branch Switcher)
-echo  - Regülasyon Uyumluluğu (EU MDR, FDA, KVKK)
-echo  - Dinamik Veri Yönetimi ve Gelişmiş API
-echo  - Command Palette (Ctrl+K veya Cmd+K)
-echo  - PWA (Progressive Web App) Desteği
-echo  - Gelişmiş Bildirim Sistemi
+echo  [OK] Port hazir.
 echo.
 echo  ========================================================
-echo  ^> Tarayicinizda su adresi acin: http://localhost:3000
+echo  ^> Tarayicinizda: http://localhost:3000
 echo  ^> Durdurmak icin: CTRL + C
 echo  ========================================================
 echo.
 
-REM Sunucuyu baslat
-call npm run dev
-
-REM Eger buraya gelirse, sunucu kapandi demektir
-if !errorlevel! neq 0 (
-    echo.
-    color 0C
-    echo  [X] Sunucu baslatilamadi!
-    echo.
-    echo  Olası nedenler:
-    echo  1. Port 3000 zaten kullaniliyor olabilir
-    echo  2. node_modules eksik veya bozuk olabilir
-    echo  3. Prisma Client olusturulmamis olabilir
-    echo.
-    echo  Cozum:
-    echo  - KURULUM.bat dosyasini tekrar calistirin
-    echo  - Veya komut isteminde: npm run dev
-    echo.
-)
+cmd /c "npm run dev -- -p 3000"
 
 echo.
 echo  Sunucu durduruldu.
 pause
-endlocal
+exit /b
+
+:ERROR_EXIT
+echo.
+echo [X] Bir hata olustu.
+pause
+exit /b 1
