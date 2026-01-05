@@ -61,6 +61,7 @@
             margin-bottom: 8px;
             font-weight: 600;
             color: #374151;
+            font-size: 14px;
         }
 
         select,
@@ -79,6 +80,12 @@
             border-color: #3b82f6;
         }
 
+        .hint {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
         .btn {
             width: 100%;
             padding: 14px;
@@ -90,6 +97,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
         }
 
         .btn:hover {
@@ -171,6 +179,23 @@
             color: #92400e;
             text-align: center;
         }
+        
+        .type-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .type-full {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .type-reset {
+            background: #fee2e2;
+            color: #991b1b;
+        }
     </style>
 </head>
 
@@ -178,11 +203,19 @@
     <div class="container">
         <div class="header">
             <h1>🔑 MediSync Keygen</h1>
-            <p>Lisans Anahtarı Oluşturucu</p>
+            <p>Lisans Anahtarı Oluşturucu (v2 - HWID)</p>
         </div>
 
         <div class="content">
             <div class="form-group">
+                <label>Lisans Tipi</label>
+                <select id="type" onchange="handleTypeChange()">
+                    <option value="FULL">Tam Sürüm (FULL)</option>
+                    <option value="RESET">Demo Sıfırlama (RESET)</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="durationGroup">
                 <label>Lisans Süresi</label>
                 <select id="duration" onchange="toggleCustomDays()">
                     <option value="7">7 Gün (Test)</option>
@@ -201,6 +234,12 @@
                 <input type="number" id="customDays" min="1" max="9999" placeholder="Gün sayısı girin...">
             </div>
 
+            <div class="form-group">
+                <label>Donanım Kimliği (Machine ID)</label>
+                <input type="text" id="machineId" placeholder="Örn: 9F86D081884C7D659A2FEAA0C55AD015" value="ANY">
+                <p class="hint">Belirli bir cihaza kilitlemek için ID girin. Herkes için 'ANY' bırakın.</p>
+            </div>
+
             <button class="btn" onclick="generateKey()">
                 🔐 Anahtar Oluştur
             </button>
@@ -213,7 +252,7 @@
 
             <div class="info">
                 <strong>Kullanım:</strong>
-                MediSync uygulamasında Ayarlar → Genel → Lisans Anahtarı Gir bölümüne yapıştırın.
+                MediSync uygulamasında <em>Ayarlar → Genel → Lisans Anahtarı Gir</em> bölümüne yapıştırın.
             </div>
 
             <div class="warning">
@@ -230,6 +269,22 @@
             const select = document.getElementById('duration');
             const customGroup = document.getElementById('customDaysGroup');
             customGroup.style.display = select.value === 'custom' ? 'block' : 'none';
+        }
+
+        function handleTypeChange() {
+            const typeSelect = document.getElementById('type');
+            const durationGroup = document.getElementById('durationGroup');
+            const customDaysGroup = document.getElementById('customDaysGroup');
+            
+            if (typeSelect.value === 'RESET') {
+                durationGroup.style.opacity = '0.5';
+                durationGroup.style.pointerEvents = 'none';
+                customDaysGroup.style.display = 'none';
+            } else {
+                durationGroup.style.opacity = '1';
+                durationGroup.style.pointerEvents = 'auto';
+                toggleCustomDays();
+            }
         }
 
         // HMAC-SHA256 implementation (Web Crypto API kullanarak)
@@ -254,23 +309,33 @@
         }
 
         async function generateKey() {
+            const type = document.getElementById('type').value;
             let days = document.getElementById('duration').value;
+            let machineId = document.getElementById('machineId').value.trim();
 
-            // Özel gün seçilmişse input'tan al
-            if (days === 'custom') {
-                const customDays = document.getElementById('customDays').value;
-                if (!customDays || parseInt(customDays) < 1) {
-                    alert('Lütfen geçerli bir gün sayısı girin');
-                    return;
+            if (!machineId) machineId = "ANY";
+            machineId = machineId.toUpperCase();
+
+            // RESET tipinde gün sayısı 0'dır
+            if (type === 'RESET') {
+                days = "0";
+            } else {
+                // Özel gün seçilmişse input'tan al
+                if (days === 'custom') {
+                    const customDays = document.getElementById('customDays').value;
+                    if (!customDays || parseInt(customDays) < 1) {
+                        alert('Lütfen geçerli bir gün sayısı girin');
+                        return;
+                    }
+                    days = customDays;
                 }
-                days = customDays;
             }
 
             const timestamp = Math.floor(Date.now() / 1000);
-            const type = "FULL";
 
             // Payload oluştur
-            const payload = `MEDISYNC-${type}-${days}-${timestamp}`;
+            // YENİ Format: MEDISYNC-TYPE-DAYS-TIMESTAMP-HWID
+            const payload = `MEDISYNC-${type}-${days}-${timestamp}-${machineId}`;
 
             // İmzala
             const hash = await hmacSha256(LICENSE_SECRET, payload);
