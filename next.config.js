@@ -3,11 +3,23 @@ const withPWA = require('next-pwa')({
     disable: process.env.NODE_ENV === 'development',
     register: true,
     skipWaiting: true,
+    importScripts: ['/sw-custom.js'],
 })
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
+
+    // ==========================================
+    // DEVELOPMENT CONFIG
+    // ==========================================
+    experimental: {
+        allowedDevOrigins: [
+            'localhost:3000',
+            'sync.medtechbiyomedikal.com.tr',
+            'medtechbiyomedikal.com.tr'
+        ],
+    },
 
     // ==========================================
     // PERFORMANCE OPTIMIZATIONS

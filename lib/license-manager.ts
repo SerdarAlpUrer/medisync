@@ -35,6 +35,24 @@ export class LicenseManager {
      * Eğer kayıt yoksa yeni bir demo kaydı oluşturur
      */
     static async checkLicense(): Promise<LicenseStatus> {
+        // Geliştirme veya acil durum erişimi için lisans kontrolünü atla
+        // İlerde tekrar lisans sormasını isterseniz bu değeri 'false' yapın.
+        const BYPASS_LICENSE_CHECK = true;
+
+        if (BYPASS_LICENSE_CHECK) {
+            return {
+                type: 'FULL',
+                remainingHours: 9999,
+                remainingMinutes: 0,
+                totalHours: 9999,
+                expiryDate: null,
+                isActive: true,
+                licenseKey: 'UNLIMITED-ACCESS-BYPASS',
+                deviceFingerprint: await this.getDeviceFingerprint()
+            }
+        }
+
+        // --- ORİJİNAL LİSANS KONTROL MANTIĞI ---
         let license = await prisma.systemLicense.findUnique({
             where: { id: "license" }
         })

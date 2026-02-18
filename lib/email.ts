@@ -33,13 +33,10 @@ export interface EmailTemplate {
   }) => EmailOptions
 }
 
+import nodemailer from 'nodemailer'
+
 /**
- * Send email (placeholder - integrate with your email service)
- * For production, integrate with services like:
- * - SendGrid
- * - AWS SES
- * - Nodemailer with SMTP
- * - Resend
+ * Send email using Nodemailer and Stalwart SMTP
  */
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
   try {
@@ -47,15 +44,31 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
     const emailEnabled = process.env.EMAIL_ENABLED === 'true'
     if (!emailEnabled) {
       logger.debug('Email disabled, skipping send', { to: options.to })
-      return true // Return true to not break flow
+      return true
     }
 
-    // TODO: Integrate with actual email service
-    // Example with Nodemailer:
-    // const transporter = nodemailer.createTransport({...})
-    // await transporter.sendMail({...})
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || '127.0.0.1',
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: false, // true for 465, false for other ports
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+      tls: {
+        rejectUnauthorized: false // Localhost self-signed certs match
+      }
+    })
 
-    logger.info('Email sent (simulated)', {
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM || 'admin@medtechbiyomedikal.com.tr',
+      to: options.to,
+      subject: options.subject,
+      html: options.html,
+      text: options.text,
+    })
+
+    logger.info('Email sent successfully', {
       to: options.to,
       subject: options.subject,
     })

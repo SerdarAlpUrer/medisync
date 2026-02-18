@@ -1,5 +1,6 @@
-// This is your Prisma schema file
-// Learn more: https://pris.ly/d/prisma-schema
+// AUTO-GENERATED - DO NOT EDIT DIRECTLY
+// Generated for provider: postgresql
+// Run: node scripts/generate-schema.js
 
 generator client {
   provider = "prisma-client-js"
@@ -10,7 +11,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Hastane/Kurum Modeli - TİTCK Uyumlu
+// Hastane/Kurum Modeli - TÄ°TCK Uyumlu
 model Hospital {
   id          String   @id @default(cuid())
   name        String
@@ -21,9 +22,9 @@ model Hospital {
   phone       String?
   email       String?
   
-  // TİTCK ve Regülasyon Bilgileri
-  titckNumber String?  // TİTCK Kayıt Numarası
-  taxNumber   String?  // Vergi Numarası
+  // TÄ°TCK ve RegÃ¼lasyon Bilgileri
+  titckNumber String?  // TÄ°TCK KayÄ±t NumarasÄ±
+  taxNumber   String?  // Vergi NumarasÄ±
   isActive    Boolean  @default(true)
   
   createdAt   DateTime @default(now())
@@ -43,7 +44,7 @@ model Hospital {
   @@map("hospitals")
 }
 
-// Kullanıcı Modeli - FDA 21 CFR Part 11 Uyumlu
+// KullanÄ±cÄ± Modeli - FDA 21 CFR Part 11 Uyumlu
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -56,12 +57,16 @@ model User {
   department   String?
   avatarUrl    String?  // Profile picture path
   
-  // Güvenlik - FDA 21 CFR Part 11
+  // GÃ¼venlik - FDA 21 CFR Part 11
   twoFactorEnabled    Boolean  @default(false)
   twoFactorSecret     String?
   failedLoginAttempts Int      @default(0)
   lastLoginAt         DateTime?
   lastLoginIp         String?
+
+  // Password Reset
+  resetToken          String?  @unique
+  resetTokenExpiry    DateTime?
   
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
@@ -89,7 +94,7 @@ model DeviceCategory {
   id          String   @id @default(cuid())
   name        String
   code        String   @unique
-  group       String?  @default("Genel") // Gruplama için (Görüntüleme, Yaşam Destek vb.)
+  group       String?  @default("Genel") // Gruplama iÃ§in (GÃ¶rÃ¼ntÃ¼leme, YaÅŸam Destek vb.)
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -97,9 +102,9 @@ model DeviceCategory {
   devices         Device[]
   deviceTrainings DeviceTraining[]
   
-  // Otomatik oluşturulan dokümantasyon
-  usageInstructionTemplate String?  // Kullanım talimatı şablonu
-  maintenanceProcedureTemplate String?  // Bakım prosedürü şablonu
+  // Otomatik oluÅŸturulan dokÃ¼mantasyon
+  usageInstructionTemplate String?  // KullanÄ±m talimatÄ± ÅŸablonu
+  maintenanceProcedureTemplate String?  // BakÄ±m prosedÃ¼rÃ¼ ÅŸablonu
 }
 
 // Lokasyon/Departman
@@ -118,7 +123,7 @@ model Location {
   deviceMovements DeviceMovement[]
 }
 
-// Tedarikçi
+// TedarikÃ§i
 model Supplier {
   id          String   @id @default(cuid())
   name        String
@@ -137,18 +142,18 @@ model Supplier {
   contracts    Contract[]
 }
 
-// Sözleşme Modeli
+// SÃ¶zleÅŸme Modeli
 model Contract {
   id              String    @id @default(cuid())
-  name            String                          // Sözleşme adı
-  contractNumber  String?                         // Sözleşme numarası
-  startDate       DateTime                        // Başlangıç tarihi
-  endDate         DateTime                        // Bitiş tarihi
-  price           Float?                          // Sözleşme fiyatı
+  name            String                          // SÃ¶zleÅŸme adÄ±
+  contractNumber  String?                         // SÃ¶zleÅŸme numarasÄ±
+  startDate       DateTime                        // BaÅŸlangÄ±Ã§ tarihi
+  endDate         DateTime                        // BitiÅŸ tarihi
+  price           Float?                          // SÃ¶zleÅŸme fiyatÄ±
   currency        String    @default("TRY")       // Para birimi
-  partsIncluded   Boolean   @default(false)       // Parça dahil mi?
-  description     String?                         // Açıklama/Notlar
-  documentPath    String?                         // Taranmış belge yolu
+  partsIncluded   Boolean   @default(false)       // ParÃ§a dahil mi?
+  description     String?                         // AÃ§Ä±klama/Notlar
+  documentPath    String?                         // TaranmÄ±ÅŸ belge yolu
   status          String    @default("ACTIVE")    // ACTIVE, EXPIRED, CANCELLED
   
   hospitalId      String
@@ -169,7 +174,7 @@ model Device {
   brand             String?        // Marka
   model             String
   manufacturer      String?
-  tagNumber         String         @unique // Künye Numarası (Örn: TAG-2025-001)
+  tagNumber         String         @unique // KÃ¼nye NumarasÄ± (Ã–rn: TAG-2025-001)
   serialNumber      String
   barcode           String?        @unique
   rfidTag           String?        @unique
@@ -180,12 +185,12 @@ model Device {
   udiDI             String?        // Device Identifier
   udiPI             String?        // Production Identifier
   
-  // EU MDR - Risk Sınıflandırması
+  // EU MDR - Risk SÄ±nÄ±flandÄ±rmasÄ±
   riskClass         String?        // I, IIa, IIb, III
-  ceMarking         String?        // CE İşareti Numarası
+  ceMarking         String?        // CE Ä°ÅŸareti NumarasÄ±
   ceMarkingDate     DateTime?
   
-  // FDA Uyumluluğu
+  // FDA UyumluluÄŸu
   fdaRegistration   String?
   
   @@unique([name, serialNumber])
@@ -212,7 +217,7 @@ model Device {
   images            String?
   documents         String?
   
-  // Bakım ve Kalibrasyon
+  // BakÄ±m ve Kalibrasyon
   lastMaintenanceDate    DateTime?
   nextMaintenanceDate    DateTime?
   maintenanceInterval    Int?
@@ -231,7 +236,7 @@ model Device {
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
 
-  // İlişkiler
+  // Ä°liÅŸkiler
   maintenanceRecords    MaintenanceRecord[]
   calibrationRecords    CalibrationRecord[]
   movements             DeviceMovement[]
@@ -255,7 +260,7 @@ model Device {
   @@map("devices")
 }
 
-// Bakım Kayıtları
+// BakÄ±m KayÄ±tlarÄ±
 model MaintenanceRecord {
   id                String            @id @default(cuid())
   deviceId          String
@@ -268,9 +273,9 @@ model MaintenanceRecord {
   priority          String            @default("MEDIUM")    // Priority enum yerine String
   
   // Uptime/Downtime Takibi
-  isActiveRepair    Boolean           @default(false) // Aktif onarım (downtime)
-  repairStartDate   DateTime?         // Onarım başlangıç
-  repairEndDate     DateTime?         // Onarım bitiş
+  isActiveRepair    Boolean           @default(false) // Aktif onarÄ±m (downtime)
+  repairStartDate   DateTime?         // OnarÄ±m baÅŸlangÄ±Ã§
+  repairEndDate     DateTime?         // OnarÄ±m bitiÅŸ
   
   scheduledDate     DateTime
   completedDate     DateTime?
@@ -284,9 +289,9 @@ model MaintenanceRecord {
   actions           String?
   notes             String?
   
-  // Bakım Prosedürü
-  procedure         String?           // Otomatik oluşturulan prosedür
-  procedureFile     String?           // PDF dosyası
+  // BakÄ±m ProsedÃ¼rÃ¼
+  procedure         String?           // Otomatik oluÅŸturulan prosedÃ¼r
+  procedureFile     String?           // PDF dosyasÄ±
   
   cost              Float?            // Decimal yerine Float
   partsReplaced     String?           // String[] yerine String
@@ -304,7 +309,7 @@ model MaintenanceRecord {
   @@index([hospitalId, status])
 }
 
-// Kalibrasyon Kayıtları
+// Kalibrasyon KayÄ±tlarÄ±
 model CalibrationRecord {
   id                String              @id @default(cuid())
   deviceId          String
@@ -343,7 +348,7 @@ model CalibrationRecord {
   @@index([expiryDate])
 }
 
-// Cihaz Hareketleri (Konum Geçmişi)
+// Cihaz Hareketleri (Konum GeÃ§miÅŸi)
 model DeviceMovement {
   id              String    @id @default(cuid())
   deviceId        String
@@ -383,7 +388,7 @@ model Consumable {
   deviceConsumables DeviceConsumable[]
 }
 
-// Cihaz-Sarf Malzeme İlişkisi
+// Cihaz-Sarf Malzeme Ä°liÅŸkisi
 model DeviceConsumable {
   id            String     @id @default(cuid())
   deviceId      String
@@ -408,15 +413,15 @@ model AuditLog {
   
   userId      String?
   user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userName    String   // Kullanıcı adı (user silinse bile kalır)
+  userName    String   // KullanÄ±cÄ± adÄ± (user silinse bile kalÄ±r)
   
   action      String   // CREATE, UPDATE, DELETE, LOGIN, LOGOUT, etc.
   entity      String   // Device, Hospital, WorkOrder, etc.
   entityId    String?
   
-  // Değişiklik takibi
-  beforeValue String?  // JSON formatında önceki değer
-  afterValue  String?  // JSON formatında yeni değer
+  // DeÄŸiÅŸiklik takibi
+  beforeValue String?  // JSON formatÄ±nda Ã¶nceki deÄŸer
+  afterValue  String?  // JSON formatÄ±nda yeni deÄŸer
   
   // Meta bilgiler
   ipAddress   String?
@@ -434,7 +439,7 @@ model AuditLog {
 }
 
 // ============================================
-// FDA 21 CFR Part 11 - ELEKTRONİK İMZA
+// FDA 21 CFR Part 11 - ELEKTRONÄ°K Ä°MZA
 // ============================================
 
 model ElectronicSignature {
@@ -446,13 +451,13 @@ model ElectronicSignature {
   entityType  String   // WorkOrder, Calibration, etc.
   entityId    String
   
-  // İmza detayları
-  meaning     String   // "Onayladım", "İnceledim", "Tamamladım"
+  // Ä°mza detaylarÄ±
+  meaning     String   // "OnayladÄ±m", "Ä°nceledim", "TamamladÄ±m"
   signedAt    DateTime @default(now())
   ipAddress   String?
-  reasonCode  String?  // İmza sebebi kodu
+  reasonCode  String?  // Ä°mza sebebi kodu
   
-  // İlişkiler (opsiyonel)
+  // Ä°liÅŸkiler (opsiyonel)
   workOrderId   String?
   workOrder     WorkOrder? @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
   calibrationId String?
@@ -463,7 +468,7 @@ model ElectronicSignature {
 }
 
 // ============================================
-// İŞ EMRİ (WORK ORDER) YÖNETİMİ
+// Ä°Åž EMRÄ° (WORK ORDER) YÃ–NETÄ°MÄ°
 // ============================================
 
 model WorkOrder {
@@ -478,7 +483,7 @@ model WorkOrder {
   hospitalId      String
   hospital        Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
   
-  // İş emri detayları
+  // Ä°ÅŸ emri detaylarÄ±
   title           String
   description     String
   type            String   // PREVENTIVE, CORRECTIVE, EMERGENCY, INSTALLATION
@@ -495,18 +500,18 @@ model WorkOrder {
   completedAt     DateTime?
   dueDate         DateTime?
   
-  // Çalışma detayları
+  // Ã‡alÄ±ÅŸma detaylarÄ±
   findings        String?  // Bulgular
-  actionsToken    String?  // Yapılan işlemler
-  partsReplaced   String?  // Değiştirilen parçalar
-  laborHours      Float?   // İşçilik saati
+  actionsToken    String?  // YapÄ±lan iÅŸlemler
+  partsReplaced   String?  // DeÄŸiÅŸtirilen parÃ§alar
+  laborHours      Float?   // Ä°ÅŸÃ§ilik saati
   cost            Float?   // Toplam maliyet
   
-  // Fotoğraflar
+  // FotoÄŸraflar
   beforePhotoUrls String?
   afterPhotoUrls  String?
 
-  // Bildiren Kişi Bilgileri
+  // Bildiren KiÅŸi Bilgileri
   reporterName    String?
   reporterPhone   String?
   reporterTitle   String?
@@ -514,7 +519,7 @@ model WorkOrder {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   
-  // İlişkiler
+  // Ä°liÅŸkiler
   signatures      ElectronicSignature[]
   
   @@index([deviceId])
@@ -529,7 +534,7 @@ model WorkOrder {
 }
 
 // ============================================
-// CAPA - DÜZELTİCİ/ÖNLEYİCİ FAALİYET
+// CAPA - DÃœZELTÄ°CÄ°/Ã–NLEYÄ°CÄ° FAALÄ°YET
 // ============================================
 
 model CAPA {
@@ -541,10 +546,10 @@ model CAPA {
   type             String   // CORRECTIVE, PREVENTIVE
   source           String?  // Audit, Complaint, AdverseEvent, etc.
   
-  // Araştırma
-  rootCause        String?  // Kök neden analizi
-  correctiveAction String?  // Düzeltici faaliyet
-  preventiveAction String?  // Önleyici faaliyet
+  // AraÅŸtÄ±rma
+  rootCause        String?  // KÃ¶k neden analizi
+  correctiveAction String?  // DÃ¼zeltici faaliyet
+  preventiveAction String?  // Ã–nleyici faaliyet
   
   // Atama
   assignedTo       String?
@@ -552,7 +557,7 @@ model CAPA {
   
   // Durum
   status           String   @default("OPEN") // OPEN, IN_PROGRESS, COMPLETED, CLOSED
-  effectiveness    String?  // Etkinlik değerlendirmesi
+  effectiveness    String?  // Etkinlik deÄŸerlendirmesi
   
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -564,7 +569,7 @@ model CAPA {
 }
 
 // ============================================
-// MDR VİJİLANS - OLUMSUZ OLAY RAPORLAMA
+// MDR VÄ°JÄ°LANS - OLUMSUZ OLAY RAPORLAMA
 // ============================================
 
 model AdverseEvent {
@@ -575,20 +580,20 @@ model AdverseEvent {
   deviceId      String
   device        Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   
-  // Olay detayları
+  // Olay detaylarÄ±
   eventDate     DateTime
   description   String
   severity      String   // LOW, MEDIUM, HIGH, CRITICAL
   status        String   @default("OPEN") // OPEN, INVESTIGATING, RESOLVED, CLOSED
   
-  // Araştırma
+  // AraÅŸtÄ±rma
   investigationFindings String?
   correctiveActions     String?
   preventiveActions     String?
   
   // Resmi raporlama
   reportedToAuthority   Boolean  @default(false)
-  authorityReportNumber String?  // TİTCK/EMA rapor numarası
+  authorityReportNumber String?  // TÄ°TCK/EMA rapor numarasÄ±
   reportedDate          DateTime?
   
   createdAt     DateTime @default(now())
@@ -602,7 +607,7 @@ model AdverseEvent {
 }
 
 // ============================================
-// KVKK - VERİ SAHİBİ TALEPLERİ
+// KVKK - VERÄ° SAHÄ°BÄ° TALEPLERÄ°
 // ============================================
 
 model DataSubjectRequest {
@@ -614,11 +619,11 @@ model DataSubjectRequest {
   subjectEmail  String
   subjectPhone  String?
   
-  // Talep detayları
+  // Talep detaylarÄ±
   requestType   String   // ACCESS, RECTIFICATION, ERASURE, RESTRICTION, PORTABILITY
   description   String
   
-  // İşlem
+  // Ä°ÅŸlem
   status        String   @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, REJECTED
   processedBy   String?
   processedAt   DateTime?
@@ -626,7 +631,7 @@ model DataSubjectRequest {
   
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  dueDate       DateTime // KVKK: 30 gün içinde yanıt
+  dueDate       DateTime // KVKK: 30 gÃ¼n iÃ§inde yanÄ±t
   
   @@index([status])
   @@index([dueDate])
@@ -634,13 +639,13 @@ model DataSubjectRequest {
 }
 
 // ============================================
-// AYARLAR - MODÜL YÖNETİMİ
+// AYARLAR - MODÃœL YÃ–NETÄ°MÄ°
 // ============================================
 
 model AppSettings {
   id                 String   @id @default("default")
   
-  // Modül Ayarları (true=aktif, false=pasif)
+  // ModÃ¼l AyarlarÄ± (true=aktif, false=pasif)
   maintenanceEnabled     Boolean  @default(false)
   calibrationEnabled     Boolean  @default(false)
   contractsEnabled       Boolean  @default(false)
@@ -652,13 +657,13 @@ model AppSettings {
   procurementEnabled     Boolean  @default(false)
   decommissioningEnabled Boolean  @default(false)
 
-  // Yedekleme Ayarları
+  // Yedekleme AyarlarÄ±
   backupAuto             Boolean  @default(false)
   backupSchedule         String   @default("daily") // daily, weekly, monthly
-  backupRetention        Int      @default(30)      // Gün olarak saklama süresi
+  backupRetention        Int      @default(30)      // GÃ¼n olarak saklama sÃ¼resi
 
-  // Künye Ayarları
-  deviceTagFormat        String   @default("TAG-{YYYY}-{SEQ}") // Örn: KUNYE-{YYYY}-{SEQ}
+  // KÃ¼nye AyarlarÄ±
+  deviceTagFormat        String   @default("TAG-{YYYY}-{SEQ}") // Ã–rn: KUNYE-{YYYY}-{SEQ}
 
   updatedAt          DateTime @updatedAt
   
@@ -666,26 +671,26 @@ model AppSettings {
 }
 
 // ============================================
-// LİSANS VE DEMO YÖNETİMİ
+// LÄ°SANS VE DEMO YÃ–NETÄ°MÄ°
 // ============================================
 
 model SystemLicense {
-  id                 String   @id @default("license") // Tek kayıt olacak
+  id                 String   @id @default("license") // Tek kayÄ±t olacak
   
   // Lisans Durumu
   isDemo             Boolean  @default(true)
   isActive           Boolean  @default(true)
   
   // Zamanlama
-  firstRunDate       DateTime @default(now())   // İlk çalıştırma (Demo başlangıcı)
-  demoDurationHours  Int      @default(240)     // Varsayılan: 240 saat (10 gün)
+  firstRunDate       DateTime @default(now())   // Ä°lk Ã§alÄ±ÅŸtÄ±rma (Demo baÅŸlangÄ±cÄ±)
+  demoDurationHours  Int      @default(240)     // VarsayÄ±lan: 240 saat (10 gÃ¼n)
   
   // Aktivasyon
-  licenseKey         String?  // Girilen lisans anahtarı
+  licenseKey         String?  // Girilen lisans anahtarÄ±
   activationDate     DateTime?
-  expiryDate         DateTime? // Tam sürüm için varsa bitiş tarihi
+  expiryDate         DateTime? // Tam sÃ¼rÃ¼m iÃ§in varsa bitiÅŸ tarihi
   
-  // Sistem Bilgisi (Cihaza özel kilit için)
+  // Sistem Bilgisi (Cihaza Ã¶zel kilit iÃ§in)
   hardwareId         String?  // Opsiyonel: CPU/HDD seri no hash'i
   
   updatedAt          DateTime @updatedAt
@@ -738,7 +743,7 @@ model PushSubscription {
 }
 
 // ============================================
-// EŞLEŞMEYEN KALİBRASYON KAYITLARI
+// EÅžLEÅžMEYEN KALÄ°BRASYON KAYITLARI
 // ============================================
 
 model UnmatchedCalibration {
@@ -750,8 +755,8 @@ model UnmatchedCalibration {
   deviceName         String?
   brand              String?
   model              String?
-  location           String?  // Bölüm/Departman için
-  hospitalId         String?  // Hastane/Şube filtreleme için
+  location           String?  // BÃ¶lÃ¼m/Departman iÃ§in
+  hospitalId         String?  // Hastane/Åžube filtreleme iÃ§in
   
   calibrationLab     String?
   scheduledDate      DateTime?
@@ -771,7 +776,7 @@ model UnmatchedCalibration {
 }
 
 // ============================================
-// EĞİTİM MODÜLÜ
+// EÄžÄ°TÄ°M MODÃœLÃœ
 // ============================================
 
 model TrainingRecord {
@@ -781,7 +786,7 @@ model TrainingRecord {
   userId            String
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
-  // Eğitim Bilgileri
+  // EÄŸitim Bilgileri
   trainingType      String   // DEVICE_SPECIFIC, GENERAL_SAFETY, MAINTENANCE, CALIBRATION
   title             String
   description       String?
@@ -790,22 +795,22 @@ model TrainingRecord {
   instructor        String?
   institution       String?
   
-  // İçerik
-  content           String?  // HTML/Markdown içerik
-  contentFile       String?  // PDF/DOCX dosyası
+  // Ä°Ã§erik
+  content           String?  // HTML/Markdown iÃ§erik
+  contentFile       String?  // PDF/DOCX dosyasÄ±
   
   // Sertifikasyon
   certificateNumber String?
   certificateFile   String?  // PDF
   expiryDate        DateTime?
   
-  // Sonuç
+  // SonuÃ§
   status            String   @default("PLANNED") // PLANNED, COMPLETED, FAILED, EXPIRED
   score             Float?
   passingScore      Float?
   notes             String?
   
-  // İlişkiler
+  // Ä°liÅŸkiler
   deviceTrainings   DeviceTraining[]
   
   createdAt         DateTime @default(now())
@@ -840,7 +845,7 @@ model DeviceTraining {
 }
 
 // ============================================
-// CİHAZ TESLİM ALMA VE HİZMETE SUNMA
+// CÄ°HAZ TESLÄ°M ALMA VE HÄ°ZMETE SUNMA
 // ============================================
 
 model DeviceProcurement {
@@ -852,7 +857,7 @@ model DeviceProcurement {
   hospitalId            String
   hospital              Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
   
-  // Sipariş Bilgileri
+  // SipariÅŸ Bilgileri
   supplierId            String?
   supplier              Supplier? @relation(fields: [supplierId], references: [id])
   orderDate             DateTime
@@ -898,7 +903,7 @@ model DeviceProcurement {
 
 
 // ============================================
-// CİHAZ KULLANIM DIŞI BIRAKMA
+// CÄ°HAZ KULLANIM DIÅžI BIRAKMA
 // ============================================
 
 model DeviceDecommissioning {
@@ -917,7 +922,7 @@ model DeviceDecommissioning {
   reason              String   // OBSOLETE, DAMAGED, REPLACED, SAFETY_CONCERN
   reasonDetails       String?
   
-  // Değerlendirme
+  // DeÄŸerlendirme
   evaluationStatus    String   @default("PENDING") // PENDING, EVALUATING, APPROVED, REJECTED
   evaluatedBy         String?
   evaluationDate      DateTime?
@@ -930,11 +935,11 @@ model DeviceDecommissioning {
   approvalDate        DateTime?
   rejectionReason     String?
   
-  // Fiziksel İşlem
+  // Fiziksel Ä°ÅŸlem
   disposalMethod      String?  // SCRAP, DONATION, SALE, RECYCLE, STORAGE
   disposalDate        DateTime?
   disposalLocation    String?
-  disposalCertificate String?  // PDF dosyası
+  disposalCertificate String?  // PDF dosyasÄ±
   dataWiped           Boolean  @default(false)
   dataWipeDate        DateTime?
   dataWipeMethod      String?
@@ -953,7 +958,7 @@ model DeviceDecommissioning {
 }
 
 // ============================================
-// UPTIME/DOWNTIME TAKİBİ
+// UPTIME/DOWNTIME TAKÄ°BÄ°
 // ============================================
 
 model DeviceUptime {
@@ -961,7 +966,7 @@ model DeviceUptime {
   deviceId          String
   device            Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   
-  // Zaman Aralığı
+  // Zaman AralÄ±ÄŸÄ±
   startDate         DateTime
   endDate           DateTime?
   
@@ -969,10 +974,10 @@ model DeviceUptime {
   status            String   // ACTIVE, DOWNTIME, MAINTENANCE
   reason            String?  // Downtime nedeni
   
-  // Hesaplanan Süreler (saniye cinsinden)
-  totalSeconds      Int?     // Toplam süre
+  // Hesaplanan SÃ¼reler (saniye cinsinden)
+  totalSeconds      Int?     // Toplam sÃ¼re
   
-  // İlişkili Kayıtlar
+  // Ä°liÅŸkili KayÄ±tlar
   maintenanceRecordId String?
   
   createdAt         DateTime @default(now())
@@ -983,20 +988,20 @@ model DeviceUptime {
   @@index([status])
 }
 
-// DeviceCategory ilişkisi için güncelleme
+// DeviceCategory iliÅŸkisi iÃ§in gÃ¼ncelleme
 
 // ============================================
-// PERSONEL VE EĞİTİM YÖNETİMİ
+// PERSONEL VE EÄžÄ°TÄ°M YÃ–NETÄ°MÄ°
 // ============================================
 
-// Sağlık Personeli
+// SaÄŸlÄ±k Personeli
 model Staff {
   id                 String   @id @default(cuid())
-  registrationNumber String   @unique // Sicil Numarası
-  idNumber           String?  // TC Kimlik Numarası
+  registrationNumber String   @unique // Sicil NumarasÄ±
+  idNumber           String?  // TC Kimlik NumarasÄ±
   name               String
   department         String?  // Departman/Birim
-  title              String?  // Unvan (Hemşire, Teknisyen, vb.)
+  title              String?  // Unvan (HemÅŸire, Teknisyen, vb.)
   phone              String?
   email              String?
   
@@ -1016,24 +1021,24 @@ model Staff {
   @@map("staff")
 }
 
-// Eğitim Oturumu
+// EÄŸitim Oturumu
 model TrainingSession {
   id              String   @id @default(cuid())
   sessionNumber   String   @unique // TRN-2024-001
-  title           String   // Eğitim Konusu
-  trainer         String?  // Eğitimi Veren Kişi
-  trainerOrg      String?  // Eğitimi Veren Firma/Kurum
-  durationMinutes Int      @default(60) // Süre (dakika)
-  content         String?  // Eğitim İçeriği
-  trainingDate    DateTime // Eğitim Tarihi
+  title           String   // EÄŸitim Konusu
+  trainer         String?  // EÄŸitimi Veren KiÅŸi
+  trainerOrg      String?  // EÄŸitimi Veren Firma/Kurum
+  durationMinutes Int      @default(60) // SÃ¼re (dakika)
+  content         String?  // EÄŸitim Ä°Ã§eriÄŸi
+  trainingDate    DateTime // EÄŸitim Tarihi
   
-  // İlişkili Cihaz/Kategori (opsiyonel)
+  // Ä°liÅŸkili Cihaz/Kategori (opsiyonel)
   deviceCategoryId String?
   
   hospitalId      String?
   hospital        Hospital? @relation(fields: [hospitalId], references: [id], onDelete: SetNull)
   
-  // Geçerlilik Süresi (ay olarak, null = süresiz)
+  // GeÃ§erlilik SÃ¼resi (ay olarak, null = sÃ¼resiz)
   validityMonths  Int?     @default(12)
   
   createdAt       DateTime @default(now())
@@ -1048,16 +1053,16 @@ model TrainingSession {
   @@map("training_sessions")
 }
 
-// Eğitim Dokümantasyonu
+// EÄŸitim DokÃ¼mantasyonu
 model TrainingDocument {
   id          String   @id @default(cuid())
   sessionId   String
   session     TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   
-  filename    String   // Orijinal dosya adı
+  filename    String   // Orijinal dosya adÄ±
   filepath    String   // Sunucudaki dosya yolu
   filesize    Int      // Dosya boyutu (bytes)
-  mimetype    String   // Dosya türü
+  mimetype    String   // Dosya tÃ¼rÃ¼
   
   uploadedAt  DateTime @default(now())
   
@@ -1065,7 +1070,7 @@ model TrainingDocument {
   @@map("training_documents")
 }
 
-// Personel-Eğitim İlişkisi
+// Personel-EÄŸitim Ä°liÅŸkisi
 model StaffTraining {
   id          String   @id @default(cuid())
   
@@ -1080,7 +1085,7 @@ model StaffTraining {
   
   // Sertifika bilgisi
   certificateNumber String?
-  expiryDate        DateTime? // Eğitim geçerlilik bitiş tarihi
+  expiryDate        DateTime? // EÄŸitim geÃ§erlilik bitiÅŸ tarihi
   
   createdAt   DateTime @default(now())
   
@@ -1090,3 +1095,4 @@ model StaffTraining {
   @@index([status])
   @@map("staff_trainings")
 }
+

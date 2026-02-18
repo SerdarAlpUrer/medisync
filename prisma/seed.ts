@@ -175,8 +175,10 @@ async function main() {
     let devices: any[] = []
     if (hospital) {
         devices = await Promise.all([
-            prisma.device.create({
-                data: {
+            prisma.device.upsert({
+                where: { tagNumber: 'TAG-2026-001' },
+                update: {},
+                create: {
                     name: 'MRI Cihazı',
                     model: 'Siemens Magnetom Skyra 3T',
                     manufacturer: 'Siemens Healthineers',
@@ -195,8 +197,10 @@ async function main() {
                     calibrationInterval: 365,
                 },
             }),
-            prisma.device.create({
-                data: {
+            prisma.device.upsert({
+                where: { tagNumber: 'TAG-2026-002' },
+                update: {},
+                create: {
                     name: 'EKG Cihazı',
                     model: 'Philips PageWriter TC70',
                     manufacturer: 'Philips',
@@ -215,8 +219,10 @@ async function main() {
                     calibrationInterval: 365,
                 },
             }),
-            prisma.device.create({
-                data: {
+            prisma.device.upsert({
+                where: { tagNumber: 'TAG-2026-003' },
+                update: {},
+                create: {
                     name: 'Defibrilatör',
                     model: 'Zoll X Series',
                     manufacturer: 'Zoll Medical',
