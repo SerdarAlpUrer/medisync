@@ -6,6 +6,12 @@ const os = require('os');
 const next = require('next');
 const selfsigned = require('selfsigned');
 
+try {
+    require('@next/env').loadEnvConfig(process.cwd());
+} catch (e) {
+    // ignore
+}
+
 process.env.NODE_ENV = process.env.NODE_ENV || 'production';
 const dev = process.env.NODE_ENV === 'development';
 const HTTP_PORT = parseInt(process.env.PORT || '3000', 10);
