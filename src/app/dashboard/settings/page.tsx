@@ -793,13 +793,15 @@ export default function SettingsPage() {
         }
     }
 
+    const isEn = language === 'en'
+
     const tabs = [
-        { id: 'general', label: 'Genel & Künye', icon: Settings },
-        { id: 'biomedical', label: 'Biyomedikal & Etiket', icon: QrCode },
-        { id: 'definitions', label: 'Bölümler & Kategoriler', icon: Layers },
-        { id: 'suppliers', label: 'Tedarikçi & Servisler', icon: Truck },
-        { id: 'appearance', label: 'Görünüm', icon: Palette },
-        { id: 'notifications', label: 'Bildirimler', icon: Bell },
+        { id: 'general', label: isEn ? 'General & Info' : 'Genel & Künye', icon: Settings },
+        { id: 'biomedical', label: isEn ? 'Biomedical & Tags' : 'Biyomedikal & Etiket', icon: QrCode },
+        { id: 'definitions', label: isEn ? 'Depts & Categories' : 'Bölümler & Kategoriler', icon: Layers },
+        { id: 'suppliers', label: isEn ? 'Suppliers & Service' : 'Tedarikçi & Servisler', icon: Truck },
+        { id: 'appearance', label: isEn ? 'Appearance' : 'Görünüm', icon: Palette },
+        { id: 'notifications', label: isEn ? 'Notifications' : 'Bildirimler', icon: Bell },
     ]
 
     const isAdmin = session?.user?.role === 'ADMIN' || session?.user?.email === 'admin@medisync.com'
@@ -807,11 +809,11 @@ export default function SettingsPage() {
 
     if (isAdmin) {
         tabs.push(
-            { id: 'modules', label: 'Modüller', icon: LayoutGrid },
-            { id: 'security', label: 'Güvenlik', icon: Shield },
-            { id: 'database', label: 'Yedekleme & DB', icon: Database },
-            { id: 'config', label: 'Sunucu (.env)', icon: Wrench },
-            { id: 'system', label: 'Sistem Durumu', icon: Server }
+            { id: 'modules', label: isEn ? 'Modules' : 'Modüller', icon: LayoutGrid },
+            { id: 'security', label: isEn ? 'Security' : 'Güvenlik', icon: Shield },
+            { id: 'database', label: isEn ? 'Backup & DB' : 'Yedekleme & DB', icon: Database },
+            { id: 'config', label: isEn ? 'Server (.env)' : 'Sunucu (.env)', icon: Wrench },
+            { id: 'system', label: isEn ? 'System Status' : 'Sistem Durumu', icon: Server }
         )
     }
 
@@ -889,8 +891,8 @@ export default function SettingsPage() {
             )}
 
             <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Sistem Ayarları</h1>
-                <p className="text-gray-600 dark:text-gray-400 mt-1">Kurumsal biyomedikal yapılandırma, etiket standartları, tanımlar ve tercihler</p>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{isEn ? 'System Settings' : 'Sistem Ayarları'}</h1>
+                <p className="text-gray-600 dark:text-gray-400 mt-1">{isEn ? 'Enterprise biomedical configuration, tag standards, definitions and preferences' : 'Kurumsal biyomedikal yapılandırma, etiket standartları, tanımlar ve tercihler'}</p>
             </div>
 
             {/* Tabs */}
@@ -923,30 +925,30 @@ export default function SettingsPage() {
                             <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-lg">
                                 <Settings className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                             </div>
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Genel Ayarlar</h2>
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{isEn ? 'General Settings' : 'Genel Ayarlar'}</h2>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <SettingItem label="Uygulama Adı" value="MediSync" description="Sistemin görünen adı" />
-                            <SettingItem label="Versiyon" value="1.5.0" description="Mevcut kurumsal sürüm numarası" />
+                            <SettingItem label={isEn ? "Application Name" : "Uygulama Adı"} value="MediSync" description={isEn ? "System display name" : "Sistemin görünen adı"} />
+                            <SettingItem label={isEn ? "Version" : "Versiyon"} value="1.5.0" description={isEn ? "Current corporate release version" : "Mevcut kurumsal sürüm numarası"} />
                         </div>
 
                         <div className="border-t dark:border-gray-700 pt-4 space-y-4">
-                            <h3 className="font-medium text-gray-900 dark:text-white mb-2">Dil ve Bölge</h3>
+                            <h3 className="font-medium text-gray-900 dark:text-white mb-2">{isEn ? 'Language and Region' : 'Dil ve Bölge'}</h3>
 
                             <SelectSetting
-                                label="Dil"
+                                label={isEn ? "Language" : "Dil"}
                                 value={language}
-                                onChange={(val) => { setLanguage(val as any); showSuccess('Dil değiştirildi'); }}
+                                onChange={(val) => { setLanguage(val as any); showSuccess(val === 'en' ? 'Language switched to English' : 'Dil Türkçe olarak ayarlandı'); }}
                                 options={[
                                     { value: 'tr', label: 'Türkçe' },
                                     { value: 'en', label: 'English' }
                                 ]}
-                                description="Uygulama arayüz dili"
+                                description={isEn ? "Application interface language" : "Uygulama arayüz dili"}
                             />
 
                             <SelectSetting
-                                label="Saat Dilimi"
+                                label={isEn ? "Timezone" : "Saat Dilimi"}
                                 value={advancedSettings.timezone}
                                 onChange={(val) => updateAdvancedSetting('timezone', val)}
                                 options={[
@@ -955,7 +957,7 @@ export default function SettingsPage() {
                                     { value: 'America/New_York', label: 'New York (GMT-5)' },
                                     { value: 'Asia/Tokyo', label: 'Tokyo (GMT+9)' }
                                 ]}
-                                description="Zaman dilimi ayarı"
+                                description={isEn ? "Timezone configuration" : "Zaman dilimi ayarı"}
                             />
 
                             <SelectSetting

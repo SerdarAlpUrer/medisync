@@ -1,9 +1,10 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState } from 'react'
+import { translations, Language } from '@/lib/i18n/translations'
 
 type Theme = 'light' | 'dark'
-type Language = 'tr' | 'en'
+export type { Language }
 
 interface ThemeContextType {
     theme: Theme
@@ -12,6 +13,7 @@ interface ThemeContextType {
     setCompactView: (compact: boolean) => void
     language: Language
     setLanguage: (lang: Language) => void
+    t: (path: string, fallback?: string) => string
     animations: boolean
     setAnimations: (enabled: boolean) => void
     sidebarCollapsed: boolean
@@ -92,11 +94,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('appSettings', JSON.stringify({ ...settings, sidebarCollapsed }))
     }, [sidebarCollapsed])
 
-    // Apply language
+    // Apply language and notify DOM/event listeners
     useEffect(() => {
+        document.documentElement.lang = language
         const savedSettings = localStorage.getItem('appSettings')
         const settings = savedSettings ? JSON.parse(savedSettings) : {}
         localStorage.setItem('appSettings', JSON.stringify({ ...settings, language }))
+        window.dispatchEvent(new CustomEvent('language-change', { detail: language }))
     }, [language])
 
     const setTheme = (newTheme: Theme) => setThemeState(newTheme)
@@ -105,11 +109,37 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const setAnimations = (enabled: boolean) => setAnimationsState(enabled)
     const setSidebarCollapsed = (collapsed: boolean) => setSidebarCollapsedState(collapsed)
 
+    // Translation resolver helper
+    const t = (path: string, fallback?: string): string => {
+        const lang = (language === 'en' ? 'en' : 'tr') as Language
+        const keys = path.split('.')
+        let current: any = translations[lang]
+
+        for (const k of keys) {
+            if (current && typeof current === 'object' && k in current) {
+                current = current[k]
+            } else {
+                let trCurrent: any = translations.tr
+                for (const trK of keys) {
+                    if (trCurrent && typeof trCurrent === 'object' && trK in trCurrent) {
+                        trCurrent = trCurrent[trK]
+                    } else {
+                        return fallback || path
+                    }
+                }
+                return typeof trCurrent === 'string' ? trCurrent : (fallback || path)
+            }
+        }
+
+        return typeof current === 'string' ? current : (fallback || path)
+    }
+
     return (
         <ThemeContext.Provider value={{
             theme, setTheme,
             compactView, setCompactView,
             language, setLanguage,
+            t,
             animations, setAnimations,
             sidebarCollapsed, setSidebarCollapsed
         }}>

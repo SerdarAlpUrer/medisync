@@ -52,7 +52,7 @@ export default function DashboardLayout({
     children: React.ReactNode
 }) {
     const [sidebarOpen, setSidebarOpen] = useState(false)
-    const { sidebarCollapsed, setSidebarCollapsed } = useTheme()
+    const { sidebarCollapsed, setSidebarCollapsed, t } = useTheme()
     const { sidebarWidth, fontSizeClass } = useAppearance()
     const commandPalette = useCommandPalette()
     const [userProfile, setUserProfile] = useState<any>(null)
@@ -111,11 +111,11 @@ export default function DashboardLayout({
                             <button
                                 onClick={commandPalette.open}
                                 className="flex items-center space-x-2 px-3 py-1.5 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 bg-gray-100/80 hover:bg-gray-200/80 dark:bg-gray-700/60 dark:hover:bg-gray-700 rounded-lg transition-colors border border-transparent dark:border-gray-600/30"
-                                title="Arama & Hızlı Komutlar (Ctrl+K)"
+                                title={t('nav.searchPlaceholder', 'Arama & Hızlı Komutlar (Ctrl+K)')}
                             >
                                 <Search className="w-3.5 h-3.5 text-gray-400" />
-                                <span className="hidden sm:inline">Hızlı Arama & Komutlar...</span>
-                                <span className="sm:hidden">Ara...</span>
+                                <span className="hidden sm:inline">{t('nav.searchPlaceholder', 'Hızlı Arama & Komutlar...')}</span>
+                                <span className="sm:hidden">{t('common.search', 'Ara...')}</span>
                                 <kbd className="hidden md:inline-block px-1.5 py-0.5 text-[10px] font-semibold text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded">
                                     Ctrl+K
                                 </kbd>
@@ -125,11 +125,11 @@ export default function DashboardLayout({
                                 <Link
                                     href="/report-fault"
                                     className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-rose-700 dark:text-rose-300 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 border border-rose-200 dark:border-rose-800/60 rounded-lg transition-all shadow-sm"
-                                    title="Klinik personeli veya teknisyen için anında arıza bildirme formu"
+                                    title={t('header.reportFault', 'Hızlı Arıza Bildir')}
                                 >
                                     <Wrench className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
-                                    <span className="hidden sm:inline">Hızlı Arıza Bildir</span>
-                                    <span className="sm:hidden">Arıza</span>
+                                    <span className="hidden sm:inline">{t('header.reportFault', 'Hızlı Arıza Bildir')}</span>
+                                    <span className="sm:hidden">{t('nav.maintenance', 'Arıza')}</span>
                                 </Link>
                                 <QuickActions />
                                 <NotificationCenter />
@@ -165,6 +165,7 @@ function Sidebar({ isOpen, onClose, collapsed, onToggleCollapse, userProfile }: 
 
     // We need to fetch settings
     const { settings } = useSettings()
+    const { t } = useTheme()
     const { data: session } = useSession()
     const { sidebarWidth } = useAppearance()
     const { activeHospital, activeHospitalId, hospitals, setActiveHospital, clearActiveHospital } = useHospital()
@@ -258,26 +259,26 @@ function Sidebar({ isOpen, onClose, collapsed, onToggleCollapse, userProfile }: 
 
     const baseNavigation = [
         // === TEMEL OPERASYONLAR (Ana Menü - Sık Kullanılanlar) ===
-        { id: 'dashboard', name: 'Genel Bakış', href: '/dashboard', icon: LayoutDashboard, category: 'ANA MENÜ', requiredFeature: null, requiredPermission: 'dashboard:view', requiredRole: null, isSecondary: false },
-        { id: 'devices', name: 'Cihaz Envanteri', href: '/dashboard/devices', icon: Package, category: 'ANA MENÜ', requiredFeature: null, requiredPermission: 'devices:view', requiredRole: null, isSecondary: false },
-        { id: 'maintenance', name: 'Arıza & Bakım', href: '/dashboard/maintenance', icon: Wrench, category: 'ANA MENÜ', requiredFeature: 'maintenanceEnabled', requiredPermission: 'maintenance:view', requiredRole: null, isSecondary: false },
-        { id: 'calibration', name: 'Kalibrasyon Takibi', href: '/dashboard/calibration', icon: FileBarChart, category: 'ANA MENÜ', requiredFeature: 'calibrationEnabled', requiredPermission: 'calibration:view', requiredRole: null, isSecondary: false },
-        { id: 'calendar', name: 'Bakım Takvimi', href: '/dashboard/calendar', icon: Calendar, category: 'ANA MENÜ', requiredFeature: 'maintenanceEnabled', requiredPermission: 'maintenance:view', requiredRole: null, isSecondary: false },
-        { id: 'contracts', name: 'Servis Sözleşmeleri', href: '/dashboard/contracts', icon: FileText, category: 'YÖNETİM & RAPORLAR', requiredFeature: 'contractsEnabled', requiredPermission: null, requiredRole: null, isSecondary: false },
-        { id: 'reports', name: 'Maliyet & Analitik', href: '/dashboard/reports', icon: FileBarChart, category: 'YÖNETİM & RAPORLAR', requiredFeature: 'reportsEnabled', requiredPermission: 'reports:view', requiredRole: null, isSecondary: false },
-        { id: 'bug-reports', name: 'Hata Bildirimleri', href: '/dashboard/bug-reports', icon: Bug, category: 'YÖNETİM & RAPORLAR', requiredFeature: null, requiredPermission: null, requiredRole: 'ADMIN', isSecondary: false },
-        { id: 'settings', name: 'Sistem Ayarları', href: '/dashboard/settings', icon: Settings, category: 'YÖNETİM & RAPORLAR', requiredFeature: null, requiredPermission: null, requiredRole: null, isSecondary: false },
+        { id: 'dashboard', name: t('nav.dashboard', 'Genel Bakış'), href: '/dashboard', icon: LayoutDashboard, category: t('nav.mainMenu', 'ANA MENÜ'), requiredFeature: null, requiredPermission: 'dashboard:view', requiredRole: null, isSecondary: false },
+        { id: 'devices', name: t('nav.devices', 'Cihaz Envanteri'), href: '/dashboard/devices', icon: Package, category: t('nav.mainMenu', 'ANA MENÜ'), requiredFeature: null, requiredPermission: 'devices:view', requiredRole: null, isSecondary: false },
+        { id: 'maintenance', name: t('nav.maintenance', 'Arıza & Bakım'), href: '/dashboard/maintenance', icon: Wrench, category: t('nav.mainMenu', 'ANA MENÜ'), requiredFeature: 'maintenanceEnabled', requiredPermission: 'maintenance:view', requiredRole: null, isSecondary: false },
+        { id: 'calibration', name: t('nav.calibration', 'Kalibrasyon Takibi'), href: '/dashboard/calibration', icon: FileBarChart, category: t('nav.mainMenu', 'ANA MENÜ'), requiredFeature: 'calibrationEnabled', requiredPermission: 'calibration:view', requiredRole: null, isSecondary: false },
+        { id: 'calendar', name: t('nav.calendar', 'Bakım Takvimi'), href: '/dashboard/calendar', icon: Calendar, category: t('nav.mainMenu', 'ANA MENÜ'), requiredFeature: 'maintenanceEnabled', requiredPermission: 'maintenance:view', requiredRole: null, isSecondary: false },
+        { id: 'contracts', name: t('nav.contracts', 'Servis Sözleşmeleri'), href: '/dashboard/contracts', icon: FileText, category: t('nav.managementReports', 'YÖNETİM & RAPORLAR'), requiredFeature: 'contractsEnabled', requiredPermission: null, requiredRole: null, isSecondary: false },
+        { id: 'reports', name: t('nav.reports', 'Maliyet & Analitik'), href: '/dashboard/reports', icon: FileBarChart, category: t('nav.managementReports', 'YÖNETİM & RAPORLAR'), requiredFeature: 'reportsEnabled', requiredPermission: 'reports:view', requiredRole: null, isSecondary: false },
+        { id: 'bug-reports', name: t('nav.bugReports', 'Hata Bildirimleri'), href: '/dashboard/bug-reports', icon: Bug, category: t('nav.managementReports', 'YÖNETİM & RAPORLAR'), requiredFeature: null, requiredPermission: null, requiredRole: 'ADMIN', isSecondary: false },
+        { id: 'settings', name: t('nav.settings', 'Sistem Ayarları'), href: '/dashboard/settings', icon: Settings, category: t('nav.managementReports', 'YÖNETİM & RAPORLAR'), requiredFeature: null, requiredPermission: null, requiredRole: null, isSecondary: false },
 
         // === EK MODÜLLER (İsteğe Bağlı & İleri Seviye) ===
-        { id: 'procurement', name: 'Kabul & Muayene', href: '/dashboard/procurement', icon: PackageCheck, category: 'DİĞER MODÜLLER', requiredFeature: 'procurementEnabled', requiredPermission: null, requiredRole: null, isSecondary: true },
-        { id: 'decommissioning', name: 'HEK / Hurda Süreci', href: '/dashboard/decommissioning', icon: Trash2, category: 'DİĞER MODÜLLER', requiredFeature: 'decommissioningEnabled', requiredPermission: null, requiredRole: null, isSecondary: true },
-        { id: 'files', name: 'Döküman Merkezi', href: '/dashboard/files', icon: FileText, category: 'DİĞER MODÜLLER', requiredFeature: null, requiredPermission: null, requiredRole: null, isSecondary: true },
-        { id: 'uts', name: 'ÜTS Bildirimleri', href: '/dashboard/uts', icon: Database, category: 'DİĞER MODÜLLER', requiredFeature: 'utsEnabled', requiredPermission: null, requiredRole: null, isSecondary: true },
-        { id: 'compliance', name: 'Denetim & Uyumluluk', href: '/dashboard/compliance', icon: Shield, category: 'DİĞER MODÜLLER', requiredFeature: 'complianceEnabled', requiredPermission: null, requiredRole: null, isSecondary: true },
-        { id: 'personnel', name: 'Biyomedikal Personel', href: '/dashboard/personnel', icon: Users, category: 'DİĞER MODÜLLER', requiredFeature: 'trainingEnabled', requiredPermission: null, requiredRole: null, isSecondary: true },
-        { id: 'training', name: 'Eğitim Yönetimi', href: '/dashboard/training', icon: GraduationCap, category: 'DİĞER MODÜLLER', requiredFeature: 'trainingEnabled', requiredPermission: null, requiredRole: null, isSecondary: true },
-        { id: 'hospitals', name: 'Şubeler & Birimler', href: '/dashboard/hospitals', icon: Building2, category: 'DİĞER MODÜLLER', requiredFeature: 'branchesEnabled', requiredPermission: null, requiredRole: null, isSecondary: true },
-        { id: 'users', name: 'Kullanıcı Yönetimi', href: '/dashboard/users', icon: Users, category: 'DİĞER MODÜLLER', requiredFeature: null, requiredPermission: 'users:manage', requiredRole: null, isSecondary: true },
+        { id: 'procurement', name: t('nav.procurement', 'Kabul & Muayene'), href: '/dashboard/procurement', icon: PackageCheck, category: t('nav.otherModules', 'DİĞER MODÜLLER'), requiredFeature: 'procurementEnabled', requiredPermission: null, requiredRole: null, isSecondary: true },
+        { id: 'decommissioning', name: t('nav.decommissioning', 'HEK / Hurda Süreci'), href: '/dashboard/decommissioning', icon: Trash2, category: t('nav.otherModules', 'DİĞER MODÜLLER'), requiredFeature: 'decommissioningEnabled', requiredPermission: null, requiredRole: null, isSecondary: true },
+        { id: 'files', name: t('nav.files', 'Döküman Merkezi'), href: '/dashboard/files', icon: FileText, category: t('nav.otherModules', 'DİĞER MODÜLLER'), requiredFeature: null, requiredPermission: null, requiredRole: null, isSecondary: true },
+        { id: 'uts', name: t('nav.uts', 'ÜTS Bildirimleri'), href: '/dashboard/uts', icon: Database, category: t('nav.otherModules', 'DİĞER MODÜLLER'), requiredFeature: 'utsEnabled', requiredPermission: null, requiredRole: null, isSecondary: true },
+        { id: 'compliance', name: t('nav.compliance', 'Denetim & Uyumluluk'), href: '/dashboard/compliance', icon: Shield, category: t('nav.otherModules', 'DİĞER MODÜLLER'), requiredFeature: 'complianceEnabled', requiredPermission: null, requiredRole: null, isSecondary: true },
+        { id: 'personnel', name: t('nav.personnel', 'Biyomedikal Personel'), href: '/dashboard/personnel', icon: Users, category: t('nav.otherModules', 'DİĞER MODÜLLER'), requiredFeature: 'trainingEnabled', requiredPermission: null, requiredRole: null, isSecondary: true },
+        { id: 'training', name: t('nav.training', 'Eğitim Yönetimi'), href: '/dashboard/training', icon: GraduationCap, category: t('nav.otherModules', 'DİĞER MODÜLLER'), requiredFeature: 'trainingEnabled', requiredPermission: null, requiredRole: null, isSecondary: true },
+        { id: 'hospitals', name: t('nav.hospitals', 'Şubeler & Birimler'), href: '/dashboard/hospitals', icon: Building2, category: t('nav.otherModules', 'DİĞER MODÜLLER'), requiredFeature: 'branchesEnabled', requiredPermission: null, requiredRole: null, isSecondary: true },
+        { id: 'users', name: t('nav.users', 'Kullanıcı Yönetimi'), href: '/dashboard/users', icon: Users, category: t('nav.otherModules', 'DİĞER MODÜLLER'), requiredFeature: null, requiredPermission: 'users:manage', requiredRole: null, isSecondary: true },
     ]
 
     // Sort navigation based on saved order
@@ -360,7 +361,7 @@ function Sidebar({ isOpen, onClose, collapsed, onToggleCollapse, userProfile }: 
                     <button
                         onClick={onToggleCollapse}
                         className="hidden lg:block p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                        title={collapsed ? 'Genişlet' : 'Daralt'}
+                        title={collapsed ? t('nav.expandMenu', 'Genişlet') : t('nav.collapseMenu', 'Daralt')}
                     >
                         {collapsed ? (
                             <ChevronRight className="h-5 w-5 text-gray-600 dark:text-gray-400" />
@@ -506,7 +507,7 @@ function Sidebar({ isOpen, onClose, collapsed, onToggleCollapse, userProfile }: 
                                 >
                                     <span className="flex items-center space-x-2">
                                         <FolderKanban className="h-3.5 w-3.5 text-blue-500" />
-                                        <span>{showOtherModules ? 'Diğer Modülleri Gizle' : `Diğer Modüller (${navigation.filter(item => (item as any).isSecondary).length})`}</span>
+                                        <span>{showOtherModules ? t('nav.hideOtherModules', 'Diğer Modülleri Gizle') : `${t('nav.otherModules', 'Diğer Modüller')} (${navigation.filter(item => (item as any).isSecondary).length})`}</span>
                                     </span>
                                     <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${showOtherModules ? 'rotate-180' : ''}`} />
                                 </button>
@@ -568,7 +569,7 @@ function Sidebar({ isOpen, onClose, collapsed, onToggleCollapse, userProfile }: 
                                 className="w-full flex items-center justify-center space-x-2 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-150"
                             >
                                 <LogOut className="h-4 w-4" />
-                                <span className="text-xs">Çıkış Yap</span>
+                                <span className="text-xs">{t('common.logout', 'Çıkış Yap')}</span>
                             </button>
                         </>
                     ) : (
@@ -589,7 +590,7 @@ function Sidebar({ isOpen, onClose, collapsed, onToggleCollapse, userProfile }: 
                             <button
                                 onClick={() => signOut({ callbackUrl: '/login' })}
                                 className="w-full flex items-center justify-center px-2 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-150"
-                                title="Çıkış Yap"
+                                title={t('common.logout', 'Çıkış Yap')}
                             >
                                 <LogOut className="h-5 w-5" />
                             </button>

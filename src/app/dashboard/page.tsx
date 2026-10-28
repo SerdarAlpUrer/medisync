@@ -58,6 +58,7 @@ interface DashboardData {
 }
 
 import { useHospital } from '@/contexts/HospitalContext'
+import { useTheme } from '@/components/ThemeProvider'
 import { SkeletonStats, SkeletonCard } from '@/components/LoadingStates'
 import { DashboardCharts } from '@/components/DashboardCharts'
 
@@ -66,6 +67,8 @@ export default function DashboardPage() {
     const [isLoading, setIsLoading] = useState(true)
     const [settings, setSettings] = useState<any>(null)
     const { activeHospital } = useHospital()
+    const { language, t } = useTheme()
+    const isEn = language === 'en'
     const [showWidgetSettings, setShowWidgetSettings] = useState(false)
     const [widgetPrefs, setWidgetPrefs] = useState({
         showStats: true,
@@ -216,19 +219,19 @@ export default function DashboardPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-                    <p className="text-gray-600 dark:text-gray-400 mt-1 text-sm lg:text-base">Tıbbi cihaz yönetim sistemine hoş geldiniz</p>
+                    <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">{isEn ? "Overview" : "Genel Bakış"}</h1>
+                    <p className="text-gray-600 dark:text-gray-400 mt-1 text-sm lg:text-base">{isEn ? "Welcome to clinical biomedical asset management portal" : "Tıbbi cihaz yönetim sistemine hoş geldiniz"}</p>
                 </div>
                 <div className="flex items-center space-x-2">
                     <button
                         onClick={() => setShowWidgetSettings(true)}
                         className="p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-lg transition-colors"
-                        title="Widget Ayarları"
+                        title={isEn ? "Widget Settings" : "Widget Ayarları"}
                     >
                         <Settings className="h-5 w-5" />
                     </button>
                     <span className="text-sm text-gray-600 dark:text-gray-400">
-                        Son güncelleme: {new Date().toLocaleString('tr-TR')}
+                        {isEn ? 'Last updated' : 'Son güncelleme'}: {new Date().toLocaleString(isEn ? 'en-US' : 'tr-TR')}
                     </span>
                 </div>
             </div>
@@ -243,8 +246,8 @@ export default function DashboardPage() {
                         <Wrench className="h-5 w-5" />
                     </div>
                     <div>
-                        <div className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white">Arıza Bildir</div>
-                        <div className="text-[11px] text-gray-500 dark:text-gray-400 hidden sm:block">Anında iş emri aç</div>
+                        <div className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white">{isEn ? "Report Fault" : "Arıza Bildir"}</div>
+                        <div className="text-[11px] text-gray-500 dark:text-gray-400 hidden sm:block">{isEn ? "Open instant ticket" : "Anında iş emri aç"}</div>
                     </div>
                 </Link>
 
@@ -256,8 +259,8 @@ export default function DashboardPage() {
                         <Package className="h-5 w-5" />
                     </div>
                     <div>
-                        <div className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white">Cihaz Ekle</div>
-                        <div className="text-[11px] text-gray-500 dark:text-gray-400 hidden sm:block">Envantere kaydet</div>
+                        <div className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white">{isEn ? "Add Device" : "Cihaz Ekle"}</div>
+                        <div className="text-[11px] text-gray-500 dark:text-gray-400 hidden sm:block">{isEn ? "Register to inventory" : "Envantere kaydet"}</div>
                     </div>
                 </Link>
 
@@ -269,8 +272,8 @@ export default function DashboardPage() {
                         <FileCheck className="h-5 w-5" />
                     </div>
                     <div>
-                        <div className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white">Kalibrasyon</div>
-                        <div className="text-[11px] text-gray-500 dark:text-gray-400 hidden sm:block">Metroloji kaydı gir</div>
+                        <div className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white">{isEn ? "Calibration" : "Kalibrasyon"}</div>
+                        <div className="text-[11px] text-gray-500 dark:text-gray-400 hidden sm:block">{isEn ? "Metrology record" : "Metroloji kaydı gir"}</div>
                     </div>
                 </Link>
 
@@ -282,8 +285,8 @@ export default function DashboardPage() {
                         <TrendingUp className="h-5 w-5" />
                     </div>
                     <div>
-                        <div className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white">Denetim Raporu</div>
-                        <div className="text-[11px] text-gray-500 dark:text-gray-400 hidden sm:block">SKS & maliyet dökümü</div>
+                        <div className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white">{isEn ? "Audit Report" : "Denetim Raporu"}</div>
+                        <div className="text-[11px] text-gray-500 dark:text-gray-400 hidden sm:block">{isEn ? "SKS & cost summary" : "SKS & maliyet dökümü"}</div>
                     </div>
                 </Link>
             </div>
@@ -299,20 +302,20 @@ export default function DashboardPage() {
             {widgetPrefs.showStats && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <StatCard
-                        title="Toplam Cihaz"
+                        title={isEn ? "Total Devices" : "Toplam Cihaz"}
                         value={stats.totalDevices}
                         icon={<Package className="h-6 w-6" />}
                         color="blue"
                     />
                     <StatCard
-                        title="Aktif Cihazlar"
+                        title={isEn ? "Active Devices" : "Aktif Cihazlar"}
                         value={stats.activeDevices}
                         icon={<Activity className="h-6 w-6" />}
                         color="green"
                     />
                     {settings?.maintenanceEnabled && (
                         <StatCard
-                            title="Bakımda"
+                            title={isEn ? "In Maintenance" : "Bakımda"}
                             value={stats.inMaintenance}
                             icon={<Wrench className="h-6 w-6" />}
                             color="orange"
@@ -320,7 +323,7 @@ export default function DashboardPage() {
                     )}
                     {settings?.calibrationEnabled && (
                         <StatCard
-                            title="Kalibrasyon Gereken"
+                            title={isEn ? "Calibration Required" : "Kalibrasyon Gereken"}
                             value={stats.needsCalibration}
                             icon={<AlertTriangle className="h-6 w-6" />}
                             color="red"
@@ -336,7 +339,7 @@ export default function DashboardPage() {
                     {settings?.maintenanceEnabled && widgetPrefs.showMaintenance && (
                         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                             <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Son Bakım İşlemleri</h2>
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{isEn ? "Recent Maintenance Activities" : "Son Bakım İşlemleri"}</h2>
                                 <Wrench className="h-5 w-5 text-gray-400" />
                             </div>
                             <div className="space-y-4">
@@ -347,7 +350,7 @@ export default function DashboardPage() {
                                         <div key={maintenance.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                                             <div className="flex-1">
                                                 <p className="font-semibold text-gray-900 dark:text-white">{maintenance.device}</p>
-                                                <p className="text-sm text-gray-600 dark:text-gray-400">{getMaintenanceTypeLabel(maintenance.type)}</p>
+                                                <p className="text-sm text-gray-600 dark:text-gray-400">{getMaintenanceTypeLabel(maintenance.type, isEn)}</p>
                                             </div>
                                             <div className="text-right">
                                                 <StatusBadge status={maintenance.status} />
@@ -367,7 +370,7 @@ export default function DashboardPage() {
                     {settings?.calibrationEnabled && widgetPrefs.showCalibration && (
                         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                             <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Yaklaşan Kalibrasyonlar</h2>
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{isEn ? "Upcoming Calibrations" : "Yaklaşan Kalibrasyonlar"}</h2>
                                 <Calendar className="h-5 w-5 text-gray-400" />
                             </div>
                             <div className="space-y-4">
@@ -560,31 +563,33 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 // Bakım tipi çevirisi
-function getMaintenanceTypeLabel(type: string): string {
-    const types: Record<string, string> = {
-        PREVENTIVE: 'Önleyici Bakım',
-        CORRECTIVE: 'Arıza Onarımı',
-        PREDICTIVE: 'Öngörücü Bakım',
-        INSPECTION: 'Muayene',
-        EMERGENCY: 'Acil Müdahale',
-        CALIBRATION: 'Kalibrasyon',
-        'Arıza Bildirimi': 'Arıza Bildirimi',
+function getMaintenanceTypeLabel(type: string, isEn?: boolean): string {
+    const types: Record<string, { tr: string; en: string }> = {
+        PREVENTIVE: { tr: 'Önleyici Bakım', en: 'Preventive Maintenance' },
+        CORRECTIVE: { tr: 'Arıza Onarımı', en: 'Corrective Repair' },
+        PREDICTIVE: { tr: 'Öngörücü Bakım', en: 'Predictive Maintenance' },
+        INSPECTION: { tr: 'Muayene', en: 'Inspection' },
+        EMERGENCY: { tr: 'Acil Müdahale', en: 'Emergency Intervention' },
+        CALIBRATION: { tr: 'Kalibrasyon', en: 'Calibration' },
+        'Arıza Bildirimi': { tr: 'Arıza Bildirimi', en: 'Fault Report' },
     }
-    return types[type] || type
+    const item = types[type]
+    if (item) return isEn ? item.en : item.tr
+    return type
 }
 
-function PriorityBadge({ priority }: { priority: string }) {
+function PriorityBadge({ priority, isEn }: { priority: string; isEn?: boolean }) {
     const priorityConfig = {
-        high: { label: 'Yüksek', className: 'badge-danger' },
-        medium: { label: 'Orta', className: 'badge-warning' },
-        low: { label: 'Düşük', className: 'badge-info' },
+        high: { label: isEn ? 'High' : 'Yüksek', className: 'badge-danger' },
+        medium: { label: isEn ? 'Medium' : 'Orta', className: 'badge-warning' },
+        low: { label: isEn ? 'Low' : 'Düşük', className: 'badge-info' },
     }
 
     const config = priorityConfig[priority as keyof typeof priorityConfig]
 
     return (
-        <span className={`badge ${config.className}`}>
-            {config.label}
+        <span className={`badge ${config?.className || 'badge-info'}`}>
+            {config?.label || priority}
         </span>
     )
 }

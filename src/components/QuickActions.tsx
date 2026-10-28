@@ -13,10 +13,13 @@ import {
     Zap,
     Upload
 } from 'lucide-react'
+import { useTheme } from '@/components/ThemeProvider'
 
 export function QuickActions() {
     const [isOpen, setIsOpen] = useState(false)
     const dropdownRef = useRef<HTMLDivElement>(null)
+    const { language, t } = useTheme()
+    const isEn = language === 'en'
 
     // Close on click outside
     useEffect(() => {
@@ -31,36 +34,36 @@ export function QuickActions() {
 
     const actions = [
         {
-            title: 'Arıza Bildir / Bakım Aç',
-            description: 'Acil veya planlı arıza/bakım kaydı başlat',
+            title: isEn ? 'Report Fault / Open Ticket' : 'Arıza Bildir / Bakım Aç',
+            description: isEn ? 'Start urgent or scheduled fault ticket' : 'Acil veya planlı arıza/bakım kaydı başlat',
             href: '/report-fault',
             icon: Wrench,
             color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/40',
         },
         {
-            title: 'Yeni Cihaz Tanımla',
-            description: 'Envantere yeni tıbbi ekipman kaydet',
+            title: isEn ? 'Register New Device' : 'Yeni Cihaz Tanımla',
+            description: isEn ? 'Register medical equipment to inventory' : 'Envantere yeni tıbbi ekipman kaydet',
             href: '/dashboard/devices?action=new',
             icon: Package,
             color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/40',
         },
         {
-            title: 'Hızlı QR / Barkod Tara',
-            description: 'Cihaz künyesini ve geçmişini anında aç',
+            title: isEn ? 'Scan QR / Barcode' : 'Hızlı QR / Barkod Tara',
+            description: isEn ? 'Instantly view device info and history' : 'Cihaz künyesini ve geçmişini anında aç',
             href: '/scan',
             icon: QrCode,
             color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/40',
         },
         {
-            title: 'Kalibrasyon Planla',
-            description: 'Yaklaşan periyodik kalibrasyon kaydı oluştur',
+            title: isEn ? 'Schedule Calibration' : 'Kalibrasyon Planla',
+            description: isEn ? 'Create periodic calibration record' : 'Yaklaşan periyodik kalibrasyon kaydı oluştur',
             href: '/dashboard/calibration?action=new',
             icon: FileCheck,
             color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950/40',
         },
         {
-            title: 'Döküman & Rapor Yükle',
-            description: 'Kullanım kılavuzu, servis formu veya fatura yükle',
+            title: isEn ? 'Upload Documents & Reports' : 'Döküman & Rapor Yükle',
+            description: isEn ? 'Upload manuals, service reports, invoices' : 'Kullanım kılavuzu, servis formu veya fatura yükle',
             href: '/dashboard/files',
             icon: Upload,
             color: 'text-purple-500 bg-purple-50 dark:bg-purple-950/40',
@@ -75,7 +78,7 @@ export function QuickActions() {
                 className="flex items-center space-x-2 px-3 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg shadow-sm hover:shadow transition-all font-medium text-xs sm:text-sm"
             >
                 <Zap className="w-4 h-4 text-amber-300 fill-amber-300 animate-pulse" />
-                <span className="hidden sm:inline">Hızlı Eylem</span>
+                <span className="hidden sm:inline">{isEn ? 'Quick Actions' : 'Hızlı Eylem'}</span>
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
@@ -83,7 +86,7 @@ export function QuickActions() {
                 <div className="absolute right-0 mt-2 w-72 sm:w-80 rounded-xl shadow-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
                     <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-700/60">
                         <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            Sık Kullanılan İşlemler
+                            {isEn ? 'Frequently Used Actions' : 'Sık Kullanılan İşlemler'}
                         </p>
                     </div>
 
