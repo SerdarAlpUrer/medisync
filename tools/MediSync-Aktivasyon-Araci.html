@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediSync - Lisans & Aktivasyon Anahtarı Üretici (Serdar Alp Ürer)</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --accent-green: #10b981;
+            --border: #334155;
+            --input-bg: #0f172a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 680px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a, #1e40af);
+            padding: 28px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: #bfdbfe;
+        }
+
+        .badge-dev {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-weight: 600;
+            color: #e0e7ff;
+        }
+
+        .content {
+            padding: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 16px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 16px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+
+        .hwid-input {
+            text-transform: uppercase;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .btn-any {
+            padding: 0 16px;
+            background: #334155;
+            color: #cbd5e1;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+
+        .btn-any:hover {
+            background: #475569;
+            color: #fff;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.4);
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+            transform: translateY(-1px);
+        }
+
+        .result-box {
+            display: none;
+            margin-top: 28px;
+            padding: 24px;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 16px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-header {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-green);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .key-display {
+            background: #090d16;
+            border: 1px dashed rgba(16, 185, 129, 0.5);
+            padding: 16px;
+            border-radius: 12px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 18px;
+            font-weight: 800;
+            color: #34d399;
+            text-align: center;
+            word-break: break-all;
+            margin-bottom: 14px;
+            user-select: all;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-action {
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+
+        .btn-copy {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .btn-copy:hover {
+            background: #059669;
+        }
+
+        .btn-msg {
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        .btn-msg:hover {
+            background: #2563eb;
+        }
+
+        .history-section {
+            margin-top: 30px;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
+
+        .history-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-list {
+            max-height: 160px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .history-item {
+            background: var(--input-bg);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border);
+        }
+
+        .history-key {
+            font-family: monospace;
+            color: #60a5fa;
+            font-weight: 600;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <span class="badge-dev">Geliştirici Sürümü</span>
+            <h1>🔑 MediSync Lisans Üretici</h1>
+            <p>Donanım Kimliği (HWID) tabanlı güvenli kurulum onay kodu üretim aracı</p>
+        </div>
+
+        <div class="content">
+            <form id="keyForm" onsubmit="event.preventDefault(); generateKey();">
+                <div class="form-group">
+                    <label for="hwid">1. Makine Donanım Kodu (HWID):</label>
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            id="hwid" 
+                            class="hwid-input" 
+                            placeholder="Örn: BE7DF55A" 
+                            maxlength="20" 
+                            required 
+                            autocomplete="off"
+                            autofocus
+                        >
+                        <button type="button" class="btn-any" onclick="setUniversalHwid()" title="Her makinede geçerli evrensel kod üret">
+                            ANY (Genel)
+                        </button>
+                    </div>
+                    <div class="checkbox-group" onclick="toggleUniversal()">
+                        <input type="checkbox" id="universalCheck" onchange="handleCheckbox(this)">
+                        <span>Tüm cihazlarda çalışan evrensel anahtar üret (ANY)</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="hospitalName">2. Kurum / Müşteri / Açıklama (İsteğe Bağlı):</label>
+                    <input 
+                        type="text" 
+                        id="hospitalName" 
+                        placeholder="Örn: Afyon Özel Parkhayat Hastanesi"
+                    >
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    <span>⚡ Aktivasyon Kodunu Üret</span>
+                </button>
+            </form>
+
+            <div id="resultBox" class="result-box">
+                <div class="result-header">
+                    <span>✅ HAZIR AKTİVASYON KODU</span>
+                </div>
+                <div id="generatedKey" class="key-display">
+                    MEDISYNC-ACTIVE-XXXXXXXX-XXXXXXXX
+                </div>
+                <div class="actions">
+                    <button type="button" class="btn-action btn-copy" onclick="copyKeyOnly()">
+                        📋 Sadece Kodu Kopyala
+                    </button>
+                    <button type="button" class="btn-action btn-msg" onclick="copyTelegramMessage()">
+                        💬 Telegram Mesajı Olarak Kopyala
+                    </button>
+                </div>
+            </div>
+
+            <div class="history-section" id="historySection" style="display: none;">
+                <div class="history-title">
+                    <span>Son Üretilen Anahtarlar</span>
+                    <button type="button" onclick="clearHistory()" style="background:none; border:none; color:#ef4444; font-size:11px; cursor:pointer;">Temizle</button>
+                </div>
+                <div id="historyList" class="history-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        MediSync Medical Systems &bull; Geliştirici: <strong>Serdar Alp Ürer</strong> &bull; Özel Mülk Lisans Motoru
+    </div>
+
+    <div id="toast" class="toast">Kopyalandı!</div>
+
+    <script>
+        // MediSync Master Secret
+        const SECRET_KEY = "MEDISYNC_AUTH_MASTER_KEY_2026";
+
+        // Web Crypto API HMAC-SHA256 Helper
+        async function hmacSha256(message, secret) {
+            const enc = new TextEncoder();
+            const key = await window.crypto.subtle.importKey(
+                "raw",
+                enc.encode(secret),
+                { name: "HMAC", hash: "SHA-256" },
+                false,
+                ["sign"]
+            );
+            const signature = await window.crypto.subtle.sign(
+                "HMAC",
+                key,
+                enc.encode(message)
+            );
+            return Array.from(new Uint8Array(signature))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+        }
+
+        function setUniversalHwid() {
+            document.getElementById('hwid').value = 'ANY';
+            document.getElementById('universalCheck').checked = true;
+            generateKey();
+        }
+
+        function handleCheckbox(cb) {
+            if (cb.checked) {
+                document.getElementById('hwid').value = 'ANY';
+            } else if (document.getElementById('hwid').value === 'ANY') {
+                document.getElementById('hwid').value = '';
+            }
+        }
+
+        function toggleUniversal() {
+            const cb = document.getElementById('universalCheck');
+            cb.checked = !cb.checked;
+            handleCheckbox(cb);
+        }
+
+        let currentKey = '';
+        let currentHwid = '';
+        let currentHospital = '';
+
+        async function generateKey() {
+            const hwidInput = document.getElementById('hwid');
+            const hospitalInput = document.getElementById('hospitalName');
+            
+            let hwid = hwidInput.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+            if (!hwid) {
+                alert('Lütfen bir Donanım Kodu (HWID) girin!');
+                hwidInput.focus();
+                return;
+            }
+
+            const hospital = hospitalInput.value.trim() || 'Genel Müşteri';
+            const payload = `MEDISYNC-ACTIVE-${hwid}`;
+            
+            try {
+                const fullHash = await hmacSha256(payload, SECRET_KEY);
+                const signature = fullHash.substring(0, 8).toUpperCase();
+                const key = `${payload}-${signature}`;
+
+                currentKey = key;
+                currentHwid = hwid;
+                currentHospital = hospital;
+
+                document.getElementById('generatedKey').innerText = key;
+                document.getElementById('resultBox').style.display = 'block';
+
+                saveToHistory(hwid, hospital, key);
+                renderHistory();
+                showToast('Aktivasyon kodu üretildi!');
+            } catch (err) {
+                alert('Şifreleme hatası: ' + err.message);
+            }
+        }
+
+        function copyKeyOnly() {
+            if (!currentKey) return;
+            navigator.clipboard.writeText(currentKey).then(() => {
+                showToast('✅ Aktivasyon kodu panoya kopyalandı!');
+            });
+        }
+
+        function copyTelegramMessage() {
+            if (!currentKey) return;
+            const msg = `Sayın Yetkili,\n\nMediSync Biyomedikal Takip Sistemi kurulum onay anahtarınız üretilmiştir:\n\n🔑 ${currentKey}\n\nProgramı açtığınızda ekrandaki aktivasyon penceresine bu kodu yapıştırıp "Sistemi Etkinleştir" butonuna basarak programı sınırsız kullanmaya başlayabilirsiniz.\n\nİyi çalışmalar dileriz.`;
+            navigator.clipboard.writeText(msg).then(() => {
+                showToast('💬 Hazır Telegram mesajı kopyalandı!');
+            });
+        }
+
+        function showToast(text) {
+            const t = document.getElementById('toast');
+            t.innerText = text;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+
+        function saveToHistory(hwid, hospital, key) {
+            try {
+                let history = JSON.parse(localStorage.getItem('medisync_keygen_history') || '[]');
+                history = history.filter(item => item.key !== key);
+                history.unshift({
+                    hwid,
+                    hospital,
+                    key,
+                    date: new Date().toLocaleDateString('tr-TR')
+                });
+                if (history.length > 10) history = history.slice(0, 10);
+                localStorage.setItem('medisync_keygen_history', JSON.stringify(history));
+            } catch (e) {}
+        }
+
+        function renderHistory() {
+            try {
+                const history = JSON.parse(localStorage.getItem('medisync_keygen_history') || '[]');
+                const container = document.getElementById('historySection');
+                const list = document.getElementById('historyList');
+
+                if (history.length === 0) {
+                    container.style.display = 'none';
+                    return;
+                }
+
+                container.style.display = 'block';
+                list.innerHTML = history.map(item => `
+                    <div class="history-item">
+                        <div>
+                            <strong>${item.hospital}</strong> (${item.hwid}) - <span style="color:#94a3b8">${item.date}</span><br>
+                            <span class="history-key">${item.key}</span>
+                        </div>
+                        <button type="button" onclick="navigator.clipboard.writeText('${item.key}'); showToast('Kopyalandı!');" style="background:#334155; color:#f8fafc; border:none; padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">Kopyala</button>
+                    </div>
+                `).join('');
+            } catch (e) {}
+        }
+
+        function clearHistory() {
+            localStorage.removeItem('medisync_keygen_history');
+            renderHistory();
+        }
+
+        window.onload = () => {
+            renderHistory();
+        };
+    </script>
+</body>
+</html>

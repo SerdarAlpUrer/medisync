@@ -1,0 +1,833 @@
+'use client'
+
+import { useState, useEffect, useRef } from 'react'
+import {
+  Search,
+  Filter,
+  Plus,
+  Download,
+  Package,
+  MapPin,
+  Calendar,
+  QrCode,
+  Check,
+  X,
+  Edit2,
+  Upload,
+  FileSpreadsheet,
+  PlusCircle
+} from 'lucide-react'
+import { exportDevicesToExcel } from '@/lib/export'
+import BarcodeReader from '@/components/BarcodeReader'
+import { useToast } from '@/components/ToastProvider'
+import * as XLSX from 'xlsx'
+import {
+  MEDICAL_DEVICE_TYPES,
+  HOSPITAL_DEPARTMENTS,
+  loadCustomDeviceTypes,
+  loadCustomDepartments,
+  saveCustomDeviceType,
+  saveCustomDepartment
+} from '@/lib/device-types'
+
+// Types
+interface Device {
+  id: string
+  deviceType: string
+  brand: string
+  model: string
+  serialNumber: string
+  locationId: string | null
+  location: { name: string } | null
+  status: string
+  lastMaintenanceDate: string | null
+  createdAt: string
+}
+
+// Demo Data Imports (only for locations now, categories not needed)
+import { demoDevices, demoLocations } from '@/lib/demo-data'
+
+export default function DevicesPage() {
+  const [devices, setDevices] = useState<Device[]>([])
+  const [locations, setLocations] = useState<string[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterStatus, setFilterStatus] = useState('ALL')
+  const [showBarcodeReader, setShowBarcodeReader] = useState(false)
+  const [showAddDevice, setShowAddDevice] = useState(false)
+  const [showAddCustomType, setShowAddCustomType] = useState(false)
+  const [showAddCustomDepartment, setShowAddCustomDepartment] = useState(false)
+  const [customEntry, setCustomEntry] = useState('')
+  const { showSuccess, showError } = useToast()
+
+  // Excel Import Ref
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Load device types and departments
+  const [deviceTypes, setDeviceTypes] = useState<string[]>([])
+  const [departments, setDepartments] = useState<string[]>([])
+
+  useEffect(() => {
+    const customTypes = loadCustomDeviceTypes()
+    const customDepts = loadCustomDepartments()
+    setDeviceTypes([...MEDICAL_DEVICE_TYPES, ...customTypes])
+    setDepartments([...HOSPITAL_DEPARTMENTS, ...customDepts])
+  }, [])
+
+  // New Device State
+  const [newDevice, setNewDevice] = useState({
+    deviceType: '',
+    brand: '',
+    model: '',
+    serialNumber: '',
+    locationId: '',
+    status: 'ACTIVE'
+  })
+
+  // Fetch Data
+  const fetchData = async () => {
+    try {
+      setIsLoading(true)
+
+      // Check Demo Mode
+      const savedSettings = localStorage.getItem('appSettings')
+      category: d.category?.name || '-',
+        location: d.location?.name || '-',
+          status: d.status,
+            lastMaintenance: d.lastMaintenanceDate || '-'
+    }))
+    exportDevicesToExcel(exportData)
+    showSuccess('Excel dosyası indirildi')
+  }
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = async (evt) => {
+      try {
+        const bstr = evt.target?.result
+        const wb = XLSX.read(bstr, { type: 'binary' })
+        const wsname = wb.SheetNames[0]
+        const ws = wb.Sheets[wsname]
+        const data = XLSX.utils.sheet_to_json(ws)
+
+        // Map Excel columns to API expected format
+        // Assuming headers: "Cihaz Adı", "Model", "Seri No", "Kategori", "Lokasyon", "Durum"
+        const mappedData = data.map((row: any) => ({
+          name: row['Cihaz Adı'] || row['Name'] || row['name'],
+          model: row['Model'] || row['model'],
+          serialNumber: row['Seri No'] || row['Serial Number'] || row['serialNumber'],
+          categoryName: row['Kategori'] || row['Category'] || row['category'],
+          locationName: row['Lokasyon'] || row['Location'] || row['location'],
+          status: row['Durum'] || row['Status'] || row['status'] || 'ACTIVE'
+        })).filter((d: any) => d.name && d.serialNumber) // Basic validation
+
+        if (mappedData.length === 0) {
+          showError('Geçerli veri bulunamadı')
+          return
+        }
+
+        const res = await fetch('/api/devices/import', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ devices: mappedData })
+        })
+
+        const result = await res.json()
+
+        if (res.ok) {
+          showSuccess(`${result.results.success} cihaz başarıyla eklendi`)
+          if (result.results.failed > 0) {
+            showError(`${result.results.failed} cihaz eklenemedi`)
+          }
+          fetchData() // Refresh list
+        } else {
+          showError(result.error || 'İçe aktarma başarısız')
+        }
+
+      } catch (error) {
+        console.error('Import error:', error)
+        showError('Dosya okuma hatası')
+      } finally {
+        if (fileInputRef.current) fileInputRef.current.value = ''
+      }
+    }
+    reader.readAsBinaryString(file)
+  }
+
+  const handleAddDevice = async () => {
+    if (!newDevice.deviceType || !newDevice.brand || !newDevice.serialNumber) {
+      showError('Lütfen zorunlu alanları doldurunuz')
+      return
+    }
+
+    // Check Demo Mode
+    const savedSettings = localStorage.getItem('appSettings')
+    const isDemoMode = savedSettings ? JSON.parse(savedSettings).demoMode : false
+
+    if (isDemoMode) {
+      const demoNewDevice = {
+        ...newDevice,
+        id: Math.random().toString(36).substr(2, 9),
+        location: newDevice.locationId ? { name: departments.find(d => d === newDevice.locationId) || newDevice.locationId } : null,
+        lastMaintenanceDate: null,
+        createdAt: new Date().toISOString()
+      }
+      setDevices([demoNewDevice as any, ...devices])
+      showSuccess('Demo modunda cihaz eklendi (Kalıcı değildir)')
+      setShowAddDevice(false)
+      setNewDevice({
+        deviceType: '',
+        brand: '',
+        model: '',
+        serialNumber: '',
+        locationId: '',
+        status: 'ACTIVE'
+      })
+      return
+    }
+
+    try {
+      const res = await fetch('/api/devices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newDevice)
+      })
+
+      if (res.ok) {
+        showSuccess('Yeni cihaz başarıyla eklendi')
+        setShowAddDevice(false)
+        setNewDevice({
+          deviceType: '',
+          brand: '',
+          model: '',
+          serialNumber: '',
+          locationId: '',
+          status: 'ACTIVE'
+        })
+        fetchData()
+      } else {
+        showError('Cihaz eklenirken hata oluştu')
+      }
+    } catch (error) {
+      showError('Sunucu hatası')
+    }
+  }
+
+  const handleAddCustomDeviceType = () => {
+    if (!customEntry.trim()) {
+      showError('Lütfen bir cihaz türü giriniz')
+      return
+    }
+    saveCustomDeviceType(customEntry.trim())
+    setDeviceTypes([...deviceTypes, customEntry.trim()])
+    setNewDevice({ ...newDevice, deviceType: customEntry.trim() })
+    setCustomEntry('')
+    setShowAddCustomType(false)
+    showSuccess('Yeni cihaz türü eklendi')
+  }
+
+  const handleAddCustomDepartment = () => {
+    if (!customEntry.trim()) {
+      showError('Lütfen bir bölüm adı giriniz')
+      return
+    }
+    saveCustomDepartment(customEntry.trim())
+    setDepartments([...departments, customEntry.trim()])
+    setNewDevice({ ...newDevice, locationId: customEntry.trim() })
+    setCustomEntry('')
+    setShowAddCustomDepartment(false)
+    showSuccess('Yeni bölüm eklendi')
+  }
+
+  const handleQuickUpdate = async (id: string, field: string, value: string) => {
+    // Check Demo Mode
+    const savedSettings = localStorage.getItem('appSettings')
+    const isDemoMode = savedSettings ? JSON.parse(savedSettings).demoMode : false
+
+    if (isDemoMode) {
+      setDevices(devices.map(d => {
+        if (d.id === id) {
+          if (field === 'categoryId') {
+            const cat = categories.find(c => c.id === value)
+            return { ...d, categoryId: value, category: cat || d.category }
+          }
+          if (field === 'locationId') {
+            const loc = locations.find(l => l.id === value)
+            return { ...d, locationId: value, location: loc || d.location }
+          }
+          return { ...d, [field]: value }
+        }
+        return d
+      }))
+      showSuccess('Demo modunda güncellendi')
+      return
+    }
+
+    try {
+      // Optimistic update
+      setDevices(devices.map(d => {
+        if (d.id === id) {
+          // Handle relation updates for optimistic UI
+          if (field === 'categoryId') {
+            const cat = categories.find(c => c.id === value)
+            return { ...d, categoryId: value, category: cat || d.category }
+          }
+          if (field === 'locationId') {
+            const loc = locations.find(l => l.id === value)
+            return { ...d, locationId: value, location: loc || d.location }
+          }
+          return { ...d, [field]: value }
+        }
+        return d
+      }))
+
+      const res = await fetch(`/api/devices/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [field]: value })
+      })
+
+      if (res.ok) {
+        showSuccess('Cihaz güncellendi')
+      } else {
+        showError('Güncelleme başarısız')
+        fetchData() // Revert
+      }
+    } catch (error) {
+      showError('Hata oluştu')
+      fetchData() // Revert
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Cihaz Yönetimi</h1>
+          <p className="text-gray-600 mt-1">Tüm tıbbi cihazları görüntüleyin ve yönetin</p>
+        </div>
+        <div className="flex items-center space-x-3">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            accept=".xlsx, .xls"
+            className="hidden"
+          />
+          <button
+            onClick={handleImportClick}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-semibold flex items-center space-x-2 transition-colors"
+          >
+            <Upload className="h-5 w-5" />
+            <span>Excel Yükle</span>
+          </button>
+          <button
+            onClick={() => setShowBarcodeReader(true)}
+            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-lg font-semibold flex items-center space-x-2 transition-colors"
+          >
+            <QrCode className="h-5 w-5" />
+            <span>Barkod Oku</span>
+          </button>
+          <button
+            onClick={() => setShowAddDevice(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center space-x-2 transition-colors"
+          >
+            <Plus className="h-5 w-5" />
+            <span>Yeni Cihaz Ekle</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <QuickStat label="Toplam Cihaz" value={devices.length} icon={<Package />} color="blue" />
+        <QuickStat
+          label="Aktif"
+          value={devices.filter(d => d.status === 'ACTIVE').length}
+          icon={<Package />}
+          color="green"
+        />
+        <QuickStat
+          label="Bakımda"
+          value={devices.filter(d => d.status === 'MAINTENANCE').length}
+          icon={<Package />}
+          color="orange"
+        />
+        <QuickStat
+          label="Kalibrasyonda"
+          value={devices.filter(d => d.status === 'CALIBRATION').length}
+          icon={<Package />}
+          color="purple"
+        />
+      </div>
+
+      {/* Search and Filters */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="relative md:col-span-2">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <input
+              type="text"
+              placeholder="Cihaz adı, model veya seri numarası ile ara..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+            >
+              <option value="ALL">Tüm Durumlar</option>
+              <option value="ACTIVE">Aktif</option>
+              <option value="MAINTENANCE">Bakımda</option>
+              <option value="CALIBRATION">Kalibrasyonda</option>
+              <option value="INACTIVE">Pasif</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="mt-4 flex justify-end">
+          <button
+            onClick={handleExportExcel}
+            className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <Download className="h-4 w-4" />
+            <span className="text-sm font-medium">Excel'e Aktar</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Devices Table */}
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Cihaz</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Seri No</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Kategori</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Lokasyon</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Durum</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Son Bakım</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">İşlemler</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                    Yükleniyor...
+                  </td>
+                </tr>
+              ) : filteredDevices.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                    Kayıtlı cihaz bulunamadı
+                  </td>
+                </tr>
+              ) : (
+                filteredDevices.map((device) => (
+                  <tr key={device.id} className="hover:bg-gray-50 transition-colors group">
+                    <td className="px-6 py-4">
+                      <div>
+                        <p className="font-semibold text-gray-900">{device.name}</p>
+                        <p className="text-sm text-gray-600">{device.model}</p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-2">
+                        <QrCode className="h-4 w-4 text-gray-400" />
+                        <span className="font-mono text-sm">{device.serialNumber}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <QuickEditCell
+                        value={device.categoryId}
+                        type="select"
+                        options={categories.map(c => ({ value: c.id, label: c.name }))}
+                        onSave={(val) => handleQuickUpdate(device.id, 'categoryId', val)}
+                      >
+                        <span className="badge badge-gray">{device.category?.name || '-'}</span>
+                      </QuickEditCell>
+                    </td>
+                    <td className="px-6 py-4">
+                      <QuickEditCell
+                        value={device.locationId || ''}
+                        type="select"
+                        options={locations.map(l => ({ value: l.id, label: l.name }))}
+                        onSave={(val) => handleQuickUpdate(device.id, 'locationId', val)}
+                      >
+                        <div className="flex items-center space-x-1 text-sm text-gray-700">
+                          <MapPin className="h-4 w-4 text-gray-400" />
+                          <span>{device.location?.name || '-'}</span>
+                        </div>
+                      </QuickEditCell>
+                    </td>
+                    <td className="px-6 py-4">
+                      <QuickEditCell
+                        value={device.status}
+                        type="select"
+                        options={[
+                          { value: 'ACTIVE', label: 'Aktif' },
+                          { value: 'INACTIVE', label: 'Pasif' },
+                          { value: 'MAINTENANCE', label: 'Bakımda' },
+                          { value: 'CALIBRATION', label: 'Kalibrasyonda' },
+                          { value: 'REPAIR', label: 'Onarımda' }
+                        ]}
+                        onSave={(val) => handleQuickUpdate(device.id, 'status', val)}
+                      >
+                        <DeviceStatusBadge status={device.status} />
+                      </QuickEditCell>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-1 text-sm text-gray-700">
+                        <Calendar className="h-4 w-4 text-gray-400" />
+                        <span>{device.lastMaintenanceDate ? new Date(device.lastMaintenanceDate).toLocaleDateString('tr-TR') : '-'}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <a
+                        href={`/dashboard/devices/${device.id}`}
+                        className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                      >
+                        Detaylar →
+                      </a>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Barcode Reader Modal */}
+      {showBarcodeReader && (
+        <BarcodeReader
+          onScan={handleBarcodeScann}
+          onClose={() => setShowBarcodeReader(false)}
+        />
+      )}
+
+      {/* Add Device Modal */}
+      {showAddDevice && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowAddDevice(false)}>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Yeni Cihaz Ekle</h2>
+            </div>
+            <div className="p-6">
+              <form className="grid grid-cols-2 gap-4" onSubmit={(e) => { e.preventDefault(); handleAddDevice(); }}>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cihaz Türü *</label>
+                  <div className="flex gap-2">
+                    <select
+                      value={newDevice.deviceType}
+                      onChange={(e) => {
+                        if (e.target.value === '__ADD_NEW__') {
+                          setShowAddCustomType(true)
+                        } else {
+                          setNewDevice({ ...newDevice, deviceType: e.target.value })
+                        }
+                      }}
+                      className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                      required
+                    >
+                      <option value="">Seçiniz...</option>
+                      {deviceTypes.sort().map(type => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
+                      <option value="__ADD_NEW__">➕ Yeni Cihaz Türü Ekle...</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Marka *</label>
+                  <input
+                    type="text"
+                    value={newDevice.brand}
+                    onChange={(e) => setNewDevice({ ...newDevice, brand: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                    required
+                    placeholder="Örn: Siemens, GE, Philips"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Model *</label>
+                  <input
+                    type="text"
+                    value={newDevice.model}
+                    onChange={(e) => setNewDevice({ ...newDevice, model: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                    required
+                    placeholder="Örn: Magnetom Skyra"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Seri Numarası *</label>
+                  <input
+                    type="text"
+                    value={newDevice.serialNumber}
+                    onChange={(e) => setNewDevice({ ...newDevice, serialNumber: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lokasyon (Bölüm) *</label>
+                  <select
+                    value={newDevice.locationId}
+                    onChange={(e) => {
+                      if (e.target.value === '__ADD_NEW__') {
+                        setShowAddCustomDepartment(true)
+                      } else {
+                        setNewDevice({ ...newDevice, locationId: e.target.value })
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Seçiniz...</option>
+                    {departments.sort().map(dept => (
+                      <option key={dept} value={dept}>{dept}</option>
+                    ))}
+                    <option value="__ADD_NEW__">➕ Yeni Bölüm Ekle...</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Durum</label>
+                  <select
+                    value={newDevice.status}
+                    onChange={(e) => setNewDevice({ ...newDevice, status: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="ACTIVE">Aktif</option>
+                    <option value="INACTIVE">Pasif</option>
+                    <option value="MAINTENANCE">Bakımda</option>
+                  </select>
+                </div>
+              </form>
+            </div>
+            <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+              <button
+                onClick={() => setShowAddDevice(false)}
+                className="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium text-gray-700 dark:text-gray-300"
+              >
+                İptal
+              </button>
+              <button
+                onClick={handleAddDevice}
+                type="button"
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+              >
+                Kaydet
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Custom Device Type Modal */}
+      {showAddCustomType && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Yeni Cihaz Türü Ekle</h3>
+            </div>
+            <div className="p-6">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cihaz Türü Adı</label>
+              <input
+                type="text"
+                value={customEntry}
+                onChange={(e) => setCustomEntry(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="Örn: Elektrokardiyografi (EKG)"
+                autoFocus
+                onKeyPress={(e) => e.key === 'Enter' && handleAddCustomDeviceType()}
+              />
+            </div>
+            <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+              <button
+                onClick={() => { setShowAddCustomType(false); setCustomEntry('') }}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium text-gray-700 dark:text-gray-300"
+              >
+                İptal
+              </button>
+              <button
+                onClick={handleAddCustomDeviceType}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2"
+              >
+                <PlusCircle className="h-4 w-4" />
+                Ekle
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Custom Department Modal */}
+      {showAddCustomDepartment && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Yeni Bölüm Ekle</h3>
+            </div>
+            <div className="p-6">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bölüm Adı</label>
+              <input
+                type="text"
+                value={customEntry}
+                onChange={(e) => setCustomEntry(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="Örn: Göz Hastalıkları"
+                autoFocus
+                onKeyPress={(e) => e.key === 'Enter' && handleAddCustomDepartment()}
+              />
+            </div>
+            <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+              <button
+                onClick={() => { setShowAddCustomDepartment(false); setCustomEntry('') }}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium text-gray-700 dark:text-gray-300"
+              >
+                İptal
+              </button>
+              <button
+                onClick={handleAddCustomDepartment}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2"
+              >
+                <PlusCircle className="h-4 w-4" />
+                Ekle
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function QuickStat({ label, value, icon, color }: { label: string; value: number; icon: React.ReactNode; color: string }) {
+  const colorClasses = {
+    blue: 'from-blue-500 to-blue-600',
+    green: 'from-green-500 to-green-600',
+    orange: 'from-orange-500 to-orange-600',
+    purple: 'from-purple-500 to-purple-600',
+  }
+
+  return (
+    <div className="bg-white rounded-lg shadow p-4 flex items-center justify-between">
+      <div>
+        <p className="text-gray-600 text-sm">{label}</p>
+        <p className="text-2xl font-bold text-gray-900">{value}</p>
+      </div>
+      <div className={`bg-gradient-to-br ${colorClasses[color as keyof typeof colorClasses]} w-10 h-10 rounded-lg flex items-center justify-center text-white`}>
+        {icon}
+      </div>
+    </div>
+  )
+}
+
+function DeviceStatusBadge({ status }: { status: string }) {
+  const statusConfig: Record<string, { label: string; className: string }> = {
+    ACTIVE: { label: 'Aktif', className: 'badge-success' },
+    INACTIVE: { label: 'Pasif', className: 'badge-gray' },
+    MAINTENANCE: { label: 'Bakımda', className: 'badge-warning' },
+    CALIBRATION: { label: 'Kalibrasyonda', className: 'badge-info' },
+    REPAIR: { label: 'Onarımda', className: 'badge-danger' },
+  }
+
+  const config = statusConfig[status] || { label: status, className: 'badge-gray' }
+  return <span className={`badge ${config.className}`}>{config.label}</span>
+}
+
+interface QuickEditCellProps {
+  value: string
+  type: 'text' | 'select'
+  options?: (string | { value: string; label: string })[]
+  onSave: (value: string) => void
+  children: React.ReactNode
+}
+
+function QuickEditCell({ value, type, options, onSave, children }: QuickEditCellProps) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [editValue, setEditValue] = useState(value)
+
+  const handleSave = () => {
+    onSave(editValue)
+    setIsEditing(false)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSave()
+    } else if (e.key === 'Escape') {
+      setIsEditing(false)
+      setEditValue(value)
+    }
+  }
+
+  if (isEditing) {
+    return (
+      <div className="flex items-center space-x-2">
+        {type === 'select' ? (
+          <select
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            autoFocus
+            onBlur={handleSave}
+          >
+            {options?.map((opt) => {
+              const val = typeof opt === 'string' ? opt : opt.value
+              const label = typeof opt === 'string' ? opt : opt.label
+              return (
+                <option key={val} value={val}>
+                  {label}
+                </option>
+              )
+            })}
+          </select>
+        ) : (
+          <input
+            type="text"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none w-full"
+            autoFocus
+            onBlur={handleSave}
+          />
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className="group/edit relative cursor-pointer"
+      onClick={() => {
+        setEditValue(value)
+        setIsEditing(true)
+      }}
+    >
+      <div className="pr-6">
+        {children}
+      </div>
+      <Edit2 className="h-3 w-3 text-gray-400 absolute right-0 top-1/2 transform -translate-y-1/2 opacity-0 group-hover/edit:opacity-100 transition-opacity" />
+    </div>
+  )
+}

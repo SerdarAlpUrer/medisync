@@ -1,0 +1,367 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 249, 250, 251;
+  --background-end-rgb: 255, 255, 255;
+  --bg-primary: 255, 255, 255;
+  --bg-secondary: 249, 250, 251;
+  --text-primary: 17, 24, 39;
+  --text-secondary: 107, 114, 128;
+  --border-color: 229, 231, 235;
+}
+
+:root.dark {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 17, 24, 39;
+  --background-end-rgb: 31, 41, 55;
+  --bg-primary: 31, 41, 55;
+  --bg-secondary: 17, 24, 39;
+  --text-primary: 243, 244, 246;
+  --text-secondary: 156, 163, 175;
+  --border-color: 55, 65, 81;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-start-rgb));
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Compact View Styles - Much More Compact */
+:root.compact-view .space-y-6 {
+  row-gap: 0.5rem !important;
+}
+
+:root.compact-view .space-y-4 {
+  row-gap: 0.375rem !important;
+}
+
+:root.compact-view .space-y-3 {
+  row-gap: 0.25rem !important;
+}
+
+:root.compact-view .p-6 {
+  padding: 0.75rem !important;
+}
+
+:root.compact-view .p-4 {
+  padding: 0.5rem !important;
+}
+
+:root.compact-view .p-3 {
+  padding: 0.375rem !important;
+}
+
+:root.compact-view .py-4 {
+  padding-top: 0.375rem !important;
+  padding-bottom: 0.375rem !important;
+}
+
+:root.compact-view .py-3 {
+  padding-top: 0.25rem !important;
+  padding-bottom: 0.25rem !important;
+}
+
+:root.compact-view .gap-6 {
+  gap: 0.5rem !important;
+}
+
+:root.compact-view .gap-4 {
+  gap: 0.375rem !important;
+}
+
+:root.compact-view .text-3xl {
+  font-size: 1.5rem !important;
+  line-height: 2rem !important;
+}
+
+:root.compact-view .text-2xl {
+  font-size: 1.25rem !important;
+  line-height: 1.75rem !important;
+}
+
+:root.compact-view .text-xl {
+  font-size: 1.125rem !important;
+  line-height: 1.5rem !important;
+}
+
+/* Animation Classes */
+:root.animations-enabled * {
+  transition-duration: 0.2s;
+  transition-timing-function: ease-in-out;
+}
+
+:root.animations-enabled .animate-on-load {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+:root.animations-enabled button:not(.no-animation):hover,
+:root.animations-enabled a:not(.no-animation):hover {
+  transform: translateY(-1px);
+  transition: transform 0.2s ease;
+}
+
+:root.animations-enabled [class*="bg-white"]:hover,
+:root.animations-enabled [class*="rounded-xl"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+:root.animations-enabled .animate-slide-in {
+  animation: slideInRight 0.4s ease-out;
+}
+
+:root.animations-enabled .animate-pulse-slow {
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #6b7280;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Card shadows */
+.card-shadow {
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.card-shadow-lg {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Status badges */
+.badge {
+  @apply px-3 py-1 rounded-full text-xs font-semibold;
+}
+
+.badge-success {
+  @apply bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300;
+}
+
+.badge-warning {
+  @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300;
+}
+
+.badge-danger {
+  @apply bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300;
+}
+
+.badge-info {
+  @apply bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300;
+}
+
+.badge-gray {
+  @apply bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300;
+}
+
+/* Mobile sidebar fixes */
+@media (max-width: 1023px) {
+  .sidebar-nav-item {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Prevent horizontal overflow on mobile */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Ensure sidebar doesn't overflow viewport */
+  [class*="fixed"][class*="left-0"] {
+    max-width: 85vw;
+  }
+
+  /* Navigation items should not overflow */
+  nav a,
+  nav button {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  /* Icon containers should be fixed size */
+  nav svg {
+    flex-shrink: 0;
+    min-width: 20px;
+  }
+
+  /* Header action buttons - responsive layout */
+  .space-x-3 {
+    gap: 0.5rem !important;
+  }
+
+  /* Make buttons smaller on mobile */
+  button.px-6 {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  button.py-3 {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  /* Smaller text on mobile */
+  button span,
+  a span {
+    font-size: 0.75rem;
+  }
+
+  /* Ensure flex containers wrap on mobile */
+  .flex.items-center.space-x-3,
+  .flex.items-center.space-x-2 {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+
+/* Small mobile specific fixes */
+@media (max-width: 640px) {
+
+  /* Hide button text on very small screens */
+  .action-button-text {
+    display: none;
+  }
+
+  /* Make header stack vertically */
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  /* Compact buttons */
+  button {
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  /* Smaller icons */
+  button svg {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  /* Grid layout for action buttons */
+  .action-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+    gap: 0.5rem;
+  }
+}
+
+/* Custom scrollbar for sidebar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 2px;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.5);
+}
