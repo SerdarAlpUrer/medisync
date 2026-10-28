@@ -48,42 +48,29 @@ async function main() {
         // If hospital is undefined, we pass null to admin user.
     }
 
-    // Admin kullanıcı oluştur
+    // 1. Admin kullanıcı oluştur (Sadece tek yetkili yönetici hesabı)
     const hashedPassword = await bcrypt.hash('admin123', 10)
 
     const adminUser = await prisma.user.upsert({
-        where: { email: 'admin@biomedicapp.com' },
-        update: {},
+        where: { email: 'admin@medisync.com' },
+        update: {
+            role: 'ADMIN',
+            isActive: true
+        },
         create: {
-            email: 'admin@biomedicapp.com',
-            name: 'Admin User',
+            email: 'admin@medisync.com',
+            name: 'Sistem Yöneticisi',
             password: hashedPassword,
             role: 'ADMIN',
             hospitalId: hospital?.id,
             department: 'Biyomedikal',
+            isActive: true
         },
     })
 
-    console.log('✅ Admin kullanıcı oluşturuldu:', adminUser.email)
+    console.log('✅ Ana Yönetici (Admin) hesabı oluşturuldu:', adminUser.email)
 
-    // Test (Viewer) kullanıcı oluştur - Sadece görüntüleme yetkisi
-    const testPassword = await bcrypt.hash('test123', 10)
-    const testUser = await prisma.user.upsert({
-        where: { email: 'test@medisync.com' },
-        update: {},
-        create: {
-            email: 'test@medisync.com',
-            name: 'Test Kullanıcı',
-            password: testPassword,
-            role: 'VIEWER',
-            hospitalId: hospital?.id,
-            department: 'Görüntüleme',
-        },
-    })
-
-    console.log('✅ Test kullanıcı oluşturuldu:', testUser.email)
-
-    // Kategoriler oluştur
+    // Kategoriler oluştur (Standart Tıbbi Cihaz Sınıfları)
     const categories = await Promise.all([
         prisma.deviceCategory.upsert({
             where: { code: 'CAT001' },
@@ -155,100 +142,12 @@ async function main() {
 
     console.log('✅ Lokasyonlar oluşturuldu:', locations.length)
 
-    // Tedarikçi oluştur
-    const supplier = await prisma.supplier.upsert({
-        where: { code: 'SUP001' },
-        update: {},
-        create: {
-            name: 'Medikal Ekipman A.Ş.',
-            code: 'SUP001',
-            contact: 'Ahmet Yılmaz',
-            phone: '+90 212 555 1111',
-            email: 'satis@medikalekipman.com',
-        },
-    })
-
-    console.log('✅ Tedarikçi oluşturuldu:', supplier.name)
-
-    // Demo cihazlar oluştur
-    // Demo cihazlar oluştur (Sadece hastane varsa)
-    let devices: any[] = []
-    if (hospital) {
-        devices = await Promise.all([
-            prisma.device.upsert({
-                where: { tagNumber: 'TAG-2026-001' },
-                update: {},
-                create: {
-                    name: 'MRI Cihazı',
-                    model: 'Siemens Magnetom Skyra 3T',
-                    manufacturer: 'Siemens Healthineers',
-                    serialNumber: 'SN-12345-MRI',
-                    barcode: 'BC-12345-MRI',
-                    categoryId: categories[0].id,
-                    hospitalId: hospital.id,
-                    locationId: locations[0].id,
-                    supplierId: supplier.id,
-                    purchaseDate: new Date('2020-05-15'),
-                    purchasePrice: 5000000,
-                    status: 'ACTIVE',
-                    condition: 'EXCELLENT',
-                    tagNumber: 'TAG-2026-001',
-                    maintenanceInterval: 90,
-                    calibrationInterval: 365,
-                },
-            }),
-            prisma.device.upsert({
-                where: { tagNumber: 'TAG-2026-002' },
-                update: {},
-                create: {
-                    name: 'EKG Cihazı',
-                    model: 'Philips PageWriter TC70',
-                    manufacturer: 'Philips',
-                    serialNumber: 'SN-44556-ECG',
-                    barcode: 'BC-44556-ECG',
-                    categoryId: categories[1].id,
-                    hospitalId: hospital.id,
-                    locationId: locations[1].id,
-                    supplierId: supplier.id,
-                    purchaseDate: new Date('2019-08-12'),
-                    purchasePrice: 45000,
-                    status: 'ACTIVE',
-                    condition: 'GOOD',
-                    tagNumber: 'TAG-2026-002',
-                    maintenanceInterval: 180,
-                    calibrationInterval: 365,
-                },
-            }),
-            prisma.device.upsert({
-                where: { tagNumber: 'TAG-2026-003' },
-                update: {},
-                create: {
-                    name: 'Defibrilatör',
-                    model: 'Zoll X Series',
-                    manufacturer: 'Zoll Medical',
-                    serialNumber: 'SN-11223-DEF',
-                    barcode: 'BC-11223-DEF',
-                    categoryId: categories[2].id,
-                    hospitalId: hospital.id,
-                    locationId: locations[1].id,
-                    supplierId: supplier.id,
-                    purchaseDate: new Date('2022-01-10'),
-                    purchasePrice: 85000,
-                    status: 'ACTIVE',
-                    condition: 'EXCELLENT',
-                    tagNumber: 'TAG-2026-003',
-                    maintenanceInterval: 90,
-                    calibrationInterval: 180,
-                },
-            }),
-        ])
-    } else {
-        console.log('ℹ️ Hastane oluşturulmadığı için demo cihazlar atlandı.')
-    }
-
-    console.log('✅ Demo cihazlar oluşturuldu:', devices.length)
-
-    console.log('🎉 Seed tamamlandı!')
+    console.log('\n========================================================')
+    console.log('🎉 İlk Kurulum Tamamlandı!')
+    console.log(`👤 Yönetici Hesabı : ${adminUser.email}`)
+    console.log('🔑 Varsayılan Şifre : admin123')
+    console.log('💡 Kurulum sonrası şifrenizi Ayarlar > Profil bölümünden değiştirmeniz önerilir.')
+    console.log('========================================================\n')
 }
 
 main()

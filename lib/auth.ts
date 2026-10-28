@@ -38,6 +38,7 @@ export const authOptions: NextAuthOptions = {
                                 ] : []),
                                 ...(inputLower === 'admin' || inputLower === 'supervisor' ? [
                                     { email: 'supervisor@medisync.com' },
+                                    { email: 'admin@medisync.com' },
                                     { email: 'admin@biomedicapp.com' }
                                 ] : [])
                             ]
