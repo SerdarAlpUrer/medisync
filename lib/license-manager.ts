@@ -52,7 +52,7 @@ export class LicenseManager {
             const hwidInKey = parts[2]
             const signature = parts[3]
 
-            if (hwidInKey !== 'ANY' && hwidInKey !== currentHwid) {
+            if (hwidInKey !== 'ANY' && hwidInKey !== 'ALL' && hwidInKey !== currentHwid) {
                 return false
             }
 
