@@ -6,8 +6,9 @@ import { getEnv } from "@/lib/env"
 import { logger } from "@/lib/logger"
 
 const env = getEnv()
-const useSecureCookies = (process.env.NEXTAUTH_URL || '').startsWith('https://')
-const cookiePrefix = useSecureCookies ? '__Secure-' : ''
+// Çift protokol (HTTP:3000 ve HTTPS:3443) ve yerel IP erişimini kusursuz desteklemek için
+const useSecureCookies = false
+const cookiePrefix = ''
 
 export const authOptions: NextAuthOptions = {
     providers: [
@@ -122,6 +123,15 @@ export const authOptions: NextAuthOptions = {
         signIn: '/login',
     },
     callbacks: {
+        async redirect({ url, baseUrl }) {
+            if (url.startsWith("/")) return url
+            try {
+                const u = new URL(url)
+                return u.pathname + u.search
+            } catch {
+                return "/dashboard"
+            }
+        },
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id

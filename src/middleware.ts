@@ -72,7 +72,9 @@ export async function middleware(req: NextRequest) {
         if (method === "POST" && matches(PUBLIC_POST_API, pathname)) return NextResponse.next()
     }
 
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+    // Çift port (HTTP 3000 / HTTPS 3443) ve IP erişiminde hem düz hem de güvenli çerezleri kontrol et
+    const token = (await getToken({ req, secret: process.env.NEXTAUTH_SECRET, secureCookie: false }))
+        || (await getToken({ req, secret: process.env.NEXTAUTH_SECRET, secureCookie: true }))
 
     if (!token) {
         if (isApi) {

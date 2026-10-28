@@ -95,6 +95,12 @@ async function main() {
     try {
         const sslOptions = await getOrCreateCertificates();
         const httpsServer = https.createServer(sslOptions, (req, res) => {
+            if (!req.headers['x-forwarded-proto']) {
+                req.headers['x-forwarded-proto'] = 'https';
+            }
+            if (!req.headers['x-forwarded-port']) {
+                req.headers['x-forwarded-port'] = String(HTTPS_PORT);
+            }
             handle(req, res);
         });
 

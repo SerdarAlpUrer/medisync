@@ -11,7 +11,19 @@ function LoginContent() {
     const router = useRouter()
     const { status } = useSession()
     const searchParams = useSearchParams()
-    const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
+    const rawCallbackUrl = searchParams.get('callbackUrl') || '/dashboard'
+    const callbackUrl = (() => {
+        if (!rawCallbackUrl) return '/dashboard'
+        if (rawCallbackUrl.startsWith('http://') || rawCallbackUrl.startsWith('https://')) {
+            try {
+                const u = new URL(rawCallbackUrl)
+                return u.pathname + u.search
+            } catch {
+                return '/dashboard'
+            }
+        }
+        return rawCallbackUrl.startsWith('/') ? rawCallbackUrl : `/${rawCallbackUrl}`
+    })()
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
