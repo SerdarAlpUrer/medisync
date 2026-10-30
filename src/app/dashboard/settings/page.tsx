@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation'
 import { useSettings } from '@/contexts/SettingsContext'
 import { useLicense } from '@/contexts/LicenseContext'
 import { useHospital } from '@/contexts/HospitalContext'
+import { translateText } from '@/lib/i18n/masterDictionary'
 
 export default function SettingsPage() {
     const { showSuccess, showError } = useToast()
@@ -2719,25 +2720,29 @@ export default function SettingsPage() {
 }
 
 function SettingItem({ label, value, description }: { label: string; value: string; description: string }) {
+    const { language } = useTheme()
+    const isEn = language === 'en'
     return (
         <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div>
-                <p className="font-medium text-gray-900 dark:text-white">{label}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
+                <p className="font-medium text-gray-900 dark:text-white">{isEn ? translateText(label, 'en') : label}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{isEn ? translateText(description, 'en') : description}</p>
             </div>
-            <div className="text-right"><p className="font-semibold text-gray-900 dark:text-white">{value}</p></div>
+            <div className="text-right"><p className="font-semibold text-gray-900 dark:text-white">{isEn ? translateText(value, 'en') : value}</p></div>
         </div>
     )
 }
 
 function ToggleSetting({ label, description, enabled, onChange, icon }: { label: string; description: string; enabled: boolean; onChange: (val: boolean) => void; icon?: React.ReactNode }) {
+    const { language } = useTheme()
+    const isEn = language === 'en'
     return (
         <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div className="flex-1 flex items-center gap-3">
                 {icon && <div className="text-gray-500 dark:text-gray-400">{icon}</div>}
                 <div className="flex-1">
-                    <p className="font-medium text-gray-900 dark:text-white">{label}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{isEn ? translateText(label, 'en') : label}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{isEn ? translateText(description, 'en') : description}</p>
                 </div>
             </div>
             <button type="button" onClick={() => onChange(!enabled)} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${enabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'}`}>
@@ -2748,19 +2753,21 @@ function ToggleSetting({ label, description, enabled, onChange, icon }: { label:
 }
 
 function SelectSetting({ label, value, onChange, options, description }: { label: string; value: string; onChange: (val: string) => void; options: Array<{ value: string; label: string }>; description: string }) {
+    const { language } = useTheme()
+    const isEn = language === 'en'
     return (
         <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                {label}
+                {isEn ? translateText(label, 'en') : label}
             </label>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{description}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{isEn ? translateText(description, 'en') : description}</p>
             <select
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
             >
                 {options.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    <option key={opt.value} value={opt.value}>{isEn ? translateText(opt.label, 'en') : opt.label}</option>
                 ))}
             </select>
         </div>
@@ -2768,12 +2775,14 @@ function SelectSetting({ label, value, onChange, options, description }: { label
 }
 
 function NumberSetting({ label, value, onChange, min, max, step = 1, description }: { label: string; value: number; onChange: (val: number) => void; min: number; max: number; step?: number; description: string }) {
+    const { language } = useTheme()
+    const isEn = language === 'en'
     return (
         <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                {label}
+                {isEn ? translateText(label, 'en') : label}
             </label>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{description}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{isEn ? translateText(description, 'en') : description}</p>
             <div className="flex items-center gap-2">
                 <input
                     type="number"
@@ -2804,17 +2813,19 @@ function NumberSetting({ label, value, onChange, min, max, step = 1, description
 }
 
 function TextSetting({ label, value, onChange, description, placeholder }: { label: string; value: string; onChange: (val: string) => void; description: string; placeholder?: string }) {
+    const { language } = useTheme()
+    const isEn = language === 'en'
     return (
         <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                {label}
+                {isEn ? translateText(label, 'en') : label}
             </label>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{description}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{isEn ? translateText(description, 'en') : description}</p>
             <input
                 type="text"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                placeholder={placeholder}
+                placeholder={isEn && placeholder ? translateText(placeholder, 'en') : placeholder}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
             />
         </div>

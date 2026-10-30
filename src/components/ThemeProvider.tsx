@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { translations, Language } from '@/lib/i18n/translations'
+import { translateText } from '@/lib/i18n/masterDictionary'
+import { AutoTranslator } from './AutoTranslator'
 
 type Theme = 'light' | 'dark'
 export type { Language }
@@ -112,6 +114,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Translation resolver helper
     const t = (path: string, fallback?: string): string => {
         const lang = (language === 'en' ? 'en' : 'tr') as Language
+        if (lang === 'tr') {
+            return fallback || path
+        }
+
+        // 1. Direct master dictionary translation if a direct Turkish string was passed
+        const directTrans = translateText(path, 'en')
+        if (directTrans !== path) {
+            return directTrans
+        }
+
+        // 2. Try nested dotted keys (e.g. 'common.save')
         const keys = path.split('.')
         let current: any = translations[lang]
 
@@ -124,14 +137,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
                     if (trCurrent && typeof trCurrent === 'object' && trK in trCurrent) {
                         trCurrent = trCurrent[trK]
                     } else {
-                        return fallback || path
+                        return fallback ? translateText(fallback, 'en') : translateText(path, 'en')
                     }
                 }
-                return typeof trCurrent === 'string' ? trCurrent : (fallback || path)
+                return typeof trCurrent === 'string' ? translateText(trCurrent, 'en') : (fallback ? translateText(fallback, 'en') : path)
             }
         }
 
-        return typeof current === 'string' ? current : (fallback || path)
+        return typeof current === 'string' ? current : (fallback ? translateText(fallback, 'en') : path)
     }
 
     return (
@@ -143,6 +156,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
             animations, setAnimations,
             sidebarCollapsed, setSidebarCollapsed
         }}>
+            <AutoTranslator />
             {children}
         </ThemeContext.Provider>
     )
